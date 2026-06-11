@@ -1,0 +1,101 @@
+.menucontainer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    width: 220px;
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+}
+
+.collapsed {
+    width: 65px;
+}
+
+.menuHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 12px;
+}
+
+.header {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #f8fafc;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.menuButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(13, 213, 195, 0.2);
+    background: rgba(13, 213, 195, 0.08);
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    color: #0dd5c3;
+    transition: all 0.2s ease;
+}
+
+.menuButton:hover {
+    background: rgba(13, 213, 195, 0.2);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(13, 213, 195, 0.3);
+}
+
+.menubar {
+    display: flex;
+    flex-direction: column;
+    row-gap: 6px;
+}
+
+.menuitem {
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+}
+
+.menuitem:hover {
+    background-color: rgba(13, 213, 195, 0.08);
+    color: #0dd5c3;
+    border-color: rgba(13, 213, 195, 0.15);
+    padding-left: 18px;
+}
+
+/* Ensure collapsed menu still shows the toggle button clearly */
+.collapsed .menuHeader {
+    justify-content: center;
+    border: none;
+    padding: 0;
+}
+
+.collapsed .header {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    margin: 0;
+}
+
+.collapsed .menubar {
+    display: none;
+}

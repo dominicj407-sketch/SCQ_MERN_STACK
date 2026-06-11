@@ -1,0 +1,417 @@
+/* ===== DOCTOR CONSOLE GENERAL LAYOUT ===== */
+.outer {
+    background: linear-gradient(135deg, #090f1d 0%, #05070c 100%) !important;
+    min-height: 100vh;
+    color: #cbd5e1;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 20px;
+    min-height: calc(100vh - 50px);
+    background: transparent !important;
+    padding: 30px 20px;
+    box-sizing: border-box;
+}
+
+/* Sidebar menubar */
+.menubar {
+    left: 0px;
+    top: 50px !important; /* aligns below header */
+    position: fixed;
+    z-index: 999;
+    background: rgba(15, 23, 42, 0.95) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(16px);
+    min-height: calc(100vh - 50px) !important;
+    width: 220px;
+}
+
+/* Primary Doctor console card */
+.card {
+    overflow-y: auto;
+    background: rgba(17, 24, 39, 0.75) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(13, 213, 195, 0.15) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(13, 213, 195, 0.02) !important;
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+    height: auto !important;
+    padding: 30px !important;
+    width: 600px !important;
+    max-width: 90% !important;
+    justify-content: flex-start;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.wrapper {
+    height: 80vh;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Doctor status selection pill bar */
+.statusCard {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding: 8px !important;
+    border-radius: 40px !important;
+    display: flex;
+    gap: 6px;
+    width: fit-content;
+    box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5) !important;
+    margin: 15px auto !important;
+}
+
+.btn {
+    padding: 10px 22px !important;
+    border: none !important;
+    border-radius: 30px !important;
+    background: transparent !important;
+    cursor: pointer;
+    font-weight: 700 !important;
+    font-family: inherit !important;
+    color: #94a3b8 !important;
+    font-size: 13px !important;
+    transition: all 0.25s ease !important;
+}
+
+/* Status Active classes colors */
+.offActive { background: rgba(100, 116, 139, 0.25) !important; color: #cbd5e1 !important; border: 1px solid rgba(100, 116, 139, 0.4) !important; }
+.availActive { background: rgba(16, 185, 129, 0.15) !important; color: #34d399 !important; border: 1px solid rgba(16, 185, 129, 0.4) !important; box-shadow: 0 0 12px rgba(16, 185, 129, 0.2) !important; }
+.breakActive { background: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; border: 1px solid rgba(245, 158, 11, 0.4) !important; box-shadow: 0 0 12px rgba(245, 158, 11, 0.2) !important; }
+.roomActive { background: rgba(2, 132, 199, 0.15) !important; color: #38bdf8 !important; border: 1px solid rgba(2, 132, 199, 0.4) !important; box-shadow: 0 0 12px rgba(2, 132, 199, 0.2) !important; }
+
+.btn:hover:not(.offActive, .availActive, .breakActive, .roomActive) {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+}
+
+/* Header styling */
+.outer > header {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(12px);
+    height: 50px !important;
+    padding: 0 20px !important;
+    box-sizing: border-box;
+}
+
+.outer > header h2 {
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.05em;
+    margin: 0px !important;
+}
+
+/* Hamburger menu button */
+.button {
+    background: rgba(13, 213, 195, 0.12) !important;
+    border: 1px solid rgba(13, 213, 195, 0.2) !important;
+    color: #0dd5c3 !important;
+    cursor: pointer !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+    margin: 0 !important;
+}
+
+.button:hover {
+    background: rgba(13, 213, 195, 0.22) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(13, 213, 195, 0.3) !important;
+}
+
+/* ===== SPECIFIC OVERRIDES FOR INLINE STYLES IN DOCTOR PAGES ===== */
+
+.container h2,
+.container h3,
+.container h4 {
+    color: #ffffff !important;
+}
+
+/* Queue Status active banner inside dashboard */
+.container div[style*="align-self: center"] {
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    letter-spacing: 0.05em;
+}
+
+.container div[style*="e8f5e9"] { background: rgba(16, 185, 129, 0.12) !important; color: #10b981 !important; border: 1px solid rgba(16, 185, 129, 0.3) !important; }
+.container div[style*="fff3cd"] { background: rgba(245, 158, 11, 0.12) !important; color: #fbbf24 !important; border: 1px solid rgba(245, 158, 11, 0.3) !important; }
+.container div[style*="ffebee"] { background: rgba(244, 63, 94, 0.12) !important; color: #f43f5e !important; border: 1px solid rgba(244, 63, 94, 0.3) !important; }
+
+/* Admitted current patient panel contents styles */
+.container div[style*="align-self: flex-start"],
+.container div[style*="border: 1px solid #ddd"] {
+    background: rgba(15, 23, 42, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+    color: #cbd5e1 !important;
+}
+
+/* Stats paragraph colors */
+.container div[style*="Total"] p {
+    color: #94a3b8 !important;
+}
+
+/* Form input fields & textareas */
+.container textarea,
+.container input[type="text"],
+.container input[type="number"],
+.container select {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-family: inherit !important;
+}
+
+.container textarea:focus,
+.container input[type="text"]:focus,
+.container input[type="number"]:focus,
+.container select:focus {
+    outline: none !important;
+    border-color: #0dd5c3 !important;
+    box-shadow: 0 0 0 3px rgba(13, 213, 195, 0.15) !important;
+}
+
+/* General button inside container (checkout/limits save buttons etc) */
+.container button:not(.btn) {
+    background: linear-gradient(135deg, #0dd5c3 0%, #0284c7 100%) !important;
+    color: #0f172a !important;
+    font-family: inherit !important;
+    font-weight: 750 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    box-shadow: 0 4px 12px rgba(13, 213, 195, 0.2) !important;
+    transition: all 0.25s ease !important;
+    cursor: pointer !important;
+}
+
+.container button:not(.btn):hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(13, 213, 195, 0.4) !important;
+}
+
+/* Close/Cancel button overlays */
+.container button[style*="background-color: grey"],
+.container button[style*="background-color: rgb(155, 157, 160)"] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: none !important;
+}
+
+/* Scan timer block styling overrides */
+.container div[style*="Waiting"] {
+    background: rgba(16, 185, 129, 0.12) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    border-radius: 8px !important;
+}
+
+.container div[style*="Waiting"] p {
+    color: #10b981 !important;
+}
+
+.container div[style*="No-show"] {
+    background: rgba(244, 63, 94, 0.12) !important;
+    border: 1px solid rgba(244, 63, 94, 0.3) !important;
+    border-radius: 8px !important;
+}
+
+.container div[style*="No-show"] p {
+    color: #f43f5e !important;
+}
+
+/* Modals overlays and content frames styles */
+.container div[style*="position: fixed"][style*="rgba(0,0,0,0.6)"],
+div[style*="position: fixed"][style*="rgba(0,0,0,0.6)"] {
+    background-color: rgba(3, 7, 18, 0.6) !important;
+    backdrop-filter: blur(6px) !important;
+}
+
+.container div[style*="max-width: 600px"][style*="background: white"],
+div[style*="max-width: 420px"][style*="background: white"] {
+    background: #0f172a !important;
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(13, 213, 195, 0.2) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    border-radius: 16px !important;
+}
+
+/* Modal text fields overrides */
+div[style*="max-width: 600px"] h2,
+div[style*="max-width: 600px"] h3,
+div[style*="max-width: 420px"] h2 {
+    color: #ffffff !important;
+}
+
+div[style*="max-width: 600px"] p,
+div[style*="max-width: 420px"] p,
+div[style*="max-width: 600px"] span {
+    color: #94a3b8 !important;
+}
+
+/* Checkout modals input fields overrides */
+div[style*="max-width: 600px"] textarea,
+div[style*="max-width: 600px"] input {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+}
+
+div[style*="max-width: 600px"] textarea:focus,
+div[style*="max-width: 600px"] input:focus {
+    outline: none !important;
+    border-color: #0dd5c3 !important;
+    box-shadow: 0 0 0 3px rgba(13, 213, 195, 0.15) !important;
+}
+
+/* Close/X button inside modals styling overrides */
+div[style*="max-width: 600px"] button[style*="absolute"] {
+    color: #94a3b8 !important;
+}
+
+div[style*="max-width: 600px"] button[style*="absolute"]:hover {
+    color: #ffffff !important;
+}
+
+/* ===== DOCTOR PROFILE & DAILY LIMITS SPECIFIC OVERRIDES ===== */
+
+/* Profile and Capacity page backgrounds and layout wrappers */
+div[style*="rgb(158, 184, 201)"],
+div[style*="rgb(192, 214, 228)"] {
+    background: linear-gradient(135deg, #090f1d 0%, #05070c 100%) !important;
+}
+
+div[style*="rgb(158, 184, 201)"] h2,
+div[style*="rgb(192, 214, 228)"] h2,
+div[style*="rgb(192, 214, 228)"] p,
+div[style*="rgb(192, 214, 228)"] label {
+    color: #ffffff !important;
+}
+
+div[style*="rgb(158, 184, 201)"] span[style*="color:#333"],
+div[style*="rgb(158, 184, 201)"] span[style*="color: #333"] {
+    color: #94a3b8 !important;
+}
+
+div[style*="rgb(158, 184, 201)"] p[style*="color: #666"] {
+    color: #64748b !important;
+}
+
+/* Card overrides specifically inside the profile or capacity page */
+div[style*="rgb(158, 184, 201)"] .card,
+div[style*="rgb(192, 214, 228)"] .card {
+    border-radius: 16px !important;
+    background: rgba(17, 24, 39, 0.75) !important;
+    border: 1px solid rgba(13, 213, 195, 0.15) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+    color: #cbd5e1 !important;
+}
+
+/* Form inputs & select overrides inside these sections */
+div[style*="rgb(158, 184, 201)"] input,
+div[style*="rgb(192, 214, 228)"] input {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #f8fafc !important;
+    border-radius: 8px !important;
+    padding: 10px 14px !important;
+    font-family: inherit !important;
+}
+
+div[style*="rgb(158, 184, 201)"] input:focus,
+div[style*="rgb(192, 214, 228)"] input:focus {
+    outline: none !important;
+    border-color: #0dd5c3 !important;
+    box-shadow: 0 0 0 3px rgba(13, 213, 195, 0.15) !important;
+}
+
+/* Profile update and capacity save buttons overrides */
+div[style*="rgb(158, 184, 201)"] button[type="submit"],
+div[style*="rgb(192, 214, 228)"] button[type="submit"],
+form button[style*="pink"] {
+    background: linear-gradient(135deg, #0dd5c3 0%, #0284c7 100%) !important;
+    color: #0f172a !important;
+    font-weight: 750 !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(13, 213, 195, 0.2) !important;
+    transition: all 0.25s ease !important;
+    cursor: pointer !important;
+}
+
+div[style*="rgb(158, 184, 201)"] button[type="submit"]:hover,
+div[style*="rgb(192, 214, 228)"] button[type="submit"]:hover,
+form button[style*="pink"]:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(13, 213, 195, 0.4) !important;
+}
+
+/* Custom buttons for sub-cards in Doctor Console */
+.saveBtn, .reportsBtn, .historyBtn {
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    font-family: inherit !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.saveBtn {
+    background: rgba(37, 99, 235, 0.2) !important;
+    color: #3b82f6 !important;
+    border: 1px solid rgba(37, 99, 235, 0.4) !important;
+}
+
+.saveBtn:hover {
+    background: rgba(37, 99, 235, 0.35) !important;
+    color: #ffffff !important;
+}
+
+.reportsBtn {
+    background: rgba(249, 115, 22, 0.15) !important;
+    color: #fb923c !important;
+    border: 1px solid rgba(249, 115, 22, 0.3) !important;
+}
+
+.reportsBtn:hover {
+    background: rgba(249, 115, 22, 0.3) !important;
+    color: #ffffff !important;
+}
+
+.historyBtn {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.historyBtn:hover {
+    background: rgba(16, 185, 129, 0.3) !important;
+    color: #ffffff !important;
+}

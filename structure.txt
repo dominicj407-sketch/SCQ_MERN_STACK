@@ -1,0 +1,104 @@
+SmartCareQueue/
+├── backend
+│   ├── .env
+│   ├── config
+│   │   └── patient.config.js
+│   ├── controllers
+│   │   ├── authContoller.js
+│   │   ├── deptController.js
+│   │   ├── doctorController.js
+│   │   ├── patientController.js
+│   │   ├── paymentController.js
+│   │   ├── queueController.js
+│   │   └── staffController.js
+│   ├── dashboard.html
+│   ├── login.html
+│   ├── middlewares
+│   │   ├── auth.js
+│   │   └── pass.js
+│   ├── models
+│   │   ├── Appointment.js
+│   │   ├── Department.js
+│   │   ├── Doctor.js
+│   │   ├── hospital.js
+│   │   ├── Patient.js
+│   │   ├── Payment.js
+│   │   ├── Queue.js
+│   │   ├── QueueLog.js
+│   │   ├── staff.js
+│   │   └── StaffAssignment.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README.md
+│   ├── routes
+│   │   ├── adminRoutes.js
+│   │   ├── authRoutes.js
+│   │   ├── doctorRoutes.js
+│   │   ├── patientRoutes.js
+│   │   └── staffRoutes.js
+│   ├── server.js
+│   ├── test.html
+│   ├── testdata.js
+│   ├── test_db.js
+│   └── test_queue.js
+├── frontend
+│   ├── .gitignore
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   │   └── vite.svg
+│   ├── README.md
+│   ├── src
+│   │   ├── addDoctor.jsx
+│   │   ├── admin
+│   │   │   ├── admin.module.css
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   └── AdminLogin.jsx
+│   │   ├── api.js
+│   │   ├── App.css
+│   │   ├── App.jsx
+│   │   ├── assets
+│   │   │   └── react.svg
+│   │   ├── authservices
+│   │   │   └── login.js
+│   │   ├── DoctorPages
+│   │   │   ├── dailylimits.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── doctor.module.css
+│   │   │   ├── Doctorprofile.jsx
+│   │   │   ├── login.jsx
+│   │   │   ├── login.module.css
+│   │   │   └── REactdemo.jsx
+│   │   ├── fromstyle.module.css
+│   │   ├── home
+│   │   │   ├── home.module.css
+│   │   │   └── page.jsx
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   ├── mystyle.module.css
+│   │   ├── pages
+│   │   │   ├── bookappointment.jsx
+│   │   │   ├── login.module.css
+│   │   │   ├── myappointments.jsx
+│   │   │   ├── Patientdashboard.jsx
+│   │   │   ├── patientlogin.jsx
+│   │   │   ├── patients.module.css
+│   │   │   ├── patientsignup.jsx
+│   │   │   └── profile.jsx
+│   │   ├── Staffpages
+│   │   │   ├── dash.jsx
+│   │   │   ├── login.jsx
+│   │   │   ├── login.module.css
+│   │   │   ├── profile.jsx
+│   │   │   ├── staffs.module.css
+│   │   │   └── viewqueue.jsx
+│   │   └── utils.jsx
+│   │       ├── menubar.jsx
+│   │       ├── menubutton.jsx
+│   │       └── util.module.css
+│   └── vite.config.js
+├── read.txt
+├── README.md
+└── tools_tree.js

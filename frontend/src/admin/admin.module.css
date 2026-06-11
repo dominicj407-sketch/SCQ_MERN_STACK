@@ -1,0 +1,412 @@
+/* Admin Module CSS - Sleek Clinic Dark Mode */
+
+.loginContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #090f1d 0%, #05070c 100%);
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+}
+
+.loginCard {
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(13, 213, 195, 0.15);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+}
+
+.loginCard h2 {
+  margin-bottom: 25px;
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  background: linear-gradient(to right, #ffffff, #0dd5c3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.loginCard form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.loginCard input {
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: rgba(15, 23, 42, 0.6);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.loginCard input:focus {
+  outline: none;
+  border-color: #0dd5c3;
+  background-color: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 0 4px rgba(13, 213, 195, 0.12);
+}
+
+.loginCard button {
+  padding: 14px;
+  background: linear-gradient(135deg, #0dd5c3 0%, #0284c7 100%);
+  color: #0f172a;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 750;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(13, 213, 195, 0.25);
+}
+
+.loginCard button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(13, 213, 195, 0.45);
+}
+
+/* Dashboard Styles */
+
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 20px;
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: linear-gradient(135deg, #090f1d 0%, #05070c 100%);
+  min-height: 100vh;
+  box-sizing: border-box;
+  color: #cbd5e1;
+}
+
+.dashboardContainer h1 {
+  color: #ffffff;
+  margin-bottom: 25px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  background: linear-gradient(to right, #ffffff, #0dd5c3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.tabButtons {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tabButtons button {
+  padding: 10px 18px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.tabButtons button:hover {
+  background-color: rgba(13, 213, 195, 0.08);
+  color: #0dd5c3;
+  border-color: rgba(13, 213, 195, 0.15);
+}
+
+/* Active tab buttons overrides */
+.tabButtons button[style*="background-color: rgb(41, 128, 185)"],
+.tabButtons button[style*="background-color: #2980b9"] {
+  background: linear-gradient(135deg, #0dd5c3 0%, #0284c7 100%) !important;
+  color: #0f172a !important;
+  border-color: transparent !important;
+  font-weight: 750 !important;
+  box-shadow: 0 4px 12px rgba(13, 213, 195, 0.25) !important;
+}
+
+/* Active tab button for Analytics */
+.tabButtons button[style*="background-color: rgb(139, 92, 246)"],
+.tabButtons button[style*="background-color: #8b5cf6"] {
+  background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  font-weight: 750 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3) !important;
+  opacity: 1 !important;
+}
+
+.tabContent {
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
+}
+
+.tabContent h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.tabContent h3 {
+  color: #ffffff !important;
+  margin-top: 25px;
+  font-weight: 700;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.formGroup input,
+.formGroup select {
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(15, 23, 42, 0.6);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #f8fafc;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #0dd5c3;
+  background-color: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 0 4px rgba(13, 213, 195, 0.12);
+}
+
+.formGroup select option {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.formGroup button {
+  padding: 14px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 750;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.formGroup button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 15px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.list li {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 14px 18px;
+  margin: 0;
+  border-radius: 10px;
+  border-left: 4px solid #0dd5c3;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+.list li strong {
+  color: #ffffff !important;
+}
+
+/* Delete button overrides inside lists */
+.list li button[style*="e74c3c"] {
+  background: rgba(244, 63, 94, 0.2) !important;
+  color: #f43f5e !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+  box-shadow: none !important;
+  font-weight: 700 !important;
+  border-radius: 6px !important;
+  padding: 6px 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.list li button[style*="e74c3c"]:hover {
+  background: rgba(244, 63, 94, 0.35) !important;
+}
+
+/* ===== SPECIFIC OVERRIDES FOR ANALYTICS AND INLINE ELEMENTS ===== */
+
+/* StatCard styles overrides */
+.dashboardContainer div[style*="StatCard"],
+.dashboardContainer div[style*="135deg"] {
+  background: rgba(17, 24, 39, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 14px !important;
+  box-sizing: border-box !important;
+}
+
+/* MiniLineChart and MiniBarChart SVG styling */
+.dashboardContainer svg text {
+  fill: #94a3b8 !important;
+}
+
+.dashboardContainer svg line {
+  stroke: rgba(255, 255, 255, 0.08) !important;
+}
+
+.dashboardContainer svg path[fill*="20"] {
+  fill: rgba(139, 92, 246, 0.08) !important; /* Area glow */
+}
+
+/* Revenue trend box, department traffic box, patient volume box overrides */
+.dashboardContainer div[style*="border: 2px solid #e9d5ff"],
+.dashboardContainer div[style*="border: 2px solid #d1fae5"],
+.dashboardContainer div[style*="border: 2px solid #dbeafe"],
+.dashboardContainer div[style*="border: 2px solid #fde68a"] {
+  background: rgba(17, 24, 39, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 16px !important;
+}
+
+.dashboardContainer div[style*="border: 2px solid #e9d5ff"] h3 { color: #a78bfa !important; }
+.dashboardContainer div[style*="border: 2px solid #d1fae5"] h3 { color: #34d399 !important; }
+.dashboardContainer div[style*="border: 2px solid #dbeafe"] h3 { color: #38bdf8 !important; }
+.dashboardContainer div[style*="border: 2px solid #fde68a"] h3 { color: #fbbf24 !important; }
+
+/* Doctor Performance Table inside Analytics */
+.dashboardContainer table tr {
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.dashboardContainer table th {
+  color: #ffffff !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 12px !important;
+  font-weight: 700 !important;
+}
+
+.dashboardContainer table td {
+  color: #cbd5e1 !important;
+  padding: 12px !important;
+}
+
+/* Status badge color inside doctor performance list */
+.dashboardContainer table span[style*="available"] {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.dashboardContainer table span[style*="offline"] {
+  background: rgba(244, 63, 94, 0.15) !important;
+  color: #f43f5e !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+}
+
+/* Table progress bar container */
+.dashboardContainer div[style*="background: #f3f4f6"] {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Profile Tab Stat Boxes overrides - robust targets */
+.dashboardContainer div[style*="padding"][style*="12px"][style*="20px"],
+.dashboardContainer div[style*="background: #e3f2fd"],
+.dashboardContainer div[style*="background: #e8f5e9"],
+.dashboardContainer div[style*="background: #fff3e0"],
+.dashboardContainer div[style*="background: #f3e5f5"] {
+  background: rgba(17, 24, 39, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dashboardContainer div[style*="padding"][style*="12px"][style*="20px"] div:nth-child(1) {
+  color: #0dd5c3 !important; /* Neon teal highlight */
+}
+
+.dashboardContainer div[style*="padding"][style*="12px"][style*="20px"] div:nth-child(2) {
+  color: #94a3b8 !important; /* Silver label */
+}
+
+/* Target StatCard items robustly and set contrast color levels */
+.dashboardContainer div[style*="160px"] {
+  background: rgba(17, 24, 39, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 14px !important;
+}
+
+.dashboardContainer div[style*="160px"] div:nth-child(3) {
+  color: #94a3b8 !important; /* Silver label */
+  font-weight: 700 !important;
+}
+
+.dashboardContainer div[style*="160px"] div:nth-child(4) {
+  color: #64748b !important; /* Slate sublabel */
+}
+
+/* Robust selector to style any chart/table card in the analytics panel */
+.tabContent div:has(> h3) {
+  background: rgba(17, 24, 39, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+  padding: 24px !important;
+  margin-bottom: 20px !important;
+  box-sizing: border-box !important;
+}
+
+.tabContent div:has(> h3) h3 {
+  color: #ffffff !important;
+  margin-top: 0 !important;
+  margin-bottom: 16px !important;
+}
+
+/* Logout Button */
+.dashboardContainer button[style*="background-color: #e74c3c"] {
+  background: rgba(244, 63, 94, 0.2) !important;
+  color: #f43f5e !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+  transition: all 0.25s ease !important;
+}
+
+.dashboardContainer button[style*="background-color: #e74c3c"]:hover {
+  background: rgba(244, 63, 94, 0.35) !important;
+  transform: translateY(-1px) !important;
+}

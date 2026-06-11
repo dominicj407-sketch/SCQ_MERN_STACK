@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+</head>
+<body>
+
+<h2>Dashboard</h2>
+
+<button onclick="refreshToken()">Refresh Access Token</button>
+
+<p id="result"></p>
+
+<script>
+
+async function refreshToken(){
+    const res = await fetch("http://localhost:3000/auth/refresh",{
+        method:"POST",
+        credentials:"include"
+    });
+
+    const data = await res.json();
+
+    document.getElementById("result").innerText =
+        "New Access Token: " + data.accessToken;
+
+    localStorage.setItem("accessToken",data.accessToken);
+}
+
+</script>
+
+</body>
+</html>

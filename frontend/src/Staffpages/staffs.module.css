@@ -1,0 +1,438 @@
+/* ===== STAFF DASHBOARD GENERAL LAYOUT ===== */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #090f1d 0%, #05070c 100%);
+  color: #cbd5e1;
+  padding: 30px 20px;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.welcomeText {
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-bottom: 25px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  background: linear-gradient(to right, #ffffff, #0dd5c3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.formCard {
+  background: rgba(17, 24, 39, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(13, 213, 195, 0.15);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 400px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.inputGroup label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.inputGroup input {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(15, 23, 42, 0.6);
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #f8fafc;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.inputGroup input:focus {
+  outline: none;
+  border-color: #0dd5c3;
+  background-color: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 0 4px rgba(13, 213, 195, 0.12);
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #0dd5c3 0%, #0284c7 100%);
+  color: #0f172a;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 750;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(13, 213, 195, 0.25);
+}
+
+.submitBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(13, 213, 195, 0.45);
+}
+
+.submitBtn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Form Profile card style inside profile.jsx */
+.card {
+  border: 1px solid rgba(13, 213, 195, 0.18) !important;
+  border-radius: 16px !important;
+  background: rgba(17, 24, 39, 0.75) !important;
+  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  row-gap: 25px;
+  height: auto !important;
+  padding: 30px !important;
+  width: 360px !important;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.wrapper {
+  height: 80vh;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Collapse navigation menu background */
+.Menu {
+  position: fixed;
+  top: 8vh;
+  left: 0px;
+  min-height: 100vh;
+  background-color: rgba(9, 15, 29, 0.95) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ===== SPECIFIC OVERRIDES FOR INLINE STYLES ===== */
+
+/* Section headers and paragraph labels */
+.container h2,
+.container h3,
+.container h4,
+.container strong {
+  color: #ffffff !important;
+}
+
+.container p,
+.container li,
+.container span:not([class*="statusBadge"]):not([class*="badge"]) {
+  color: #cbd5e1 !important;
+}
+
+/* General button styling inside Staff Dash & ViewQueue */
+.container button {
+  background: linear-gradient(135deg, #0dd5c3 0%, #0284c7 100%) !important;
+  color: #0f172a !important;
+  border: none !important;
+  font-family: inherit !important;
+  font-weight: 750 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(13, 213, 195, 0.2) !important;
+  transition: all 0.25s ease !important;
+}
+
+.container button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(13, 213, 195, 0.4) !important;
+  opacity: 0.95 !important;
+}
+
+.container button:disabled {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #64748b !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Close/Cancel buttons */
+.container button[style*="eaeaea"] {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: none !important;
+}
+
+.container button[style*="eaeaea"]:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: none !important;
+}
+
+/* Emergency override button */
+.container button[style*="e74c3c"] {
+  background: rgba(244, 63, 94, 0.2) !important;
+  color: #f43f5e !important;
+  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+  box-shadow: none !important;
+}
+
+.container button[style*="e74c3c"]:hover {
+  background: rgba(244, 63, 94, 0.35) !important;
+}
+
+/* Close Scanner button */
+.container button[style*="ffcdd2"] {
+  background: rgba(244, 63, 94, 0.15) !important;
+  color: #f43f5e !important;
+  border: 1px solid rgba(244, 63, 94, 0.3) !important;
+  box-shadow: none !important;
+}
+
+/* Close/hamburger float menu button styling */
+.container > button[style*="fixed"] {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(13, 213, 195, 0.2) !important;
+  color: #0dd5c3 !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.container > button[style*="fixed"]:hover {
+  background: #0f172a !important;
+  box-shadow: 0 4px 20px rgba(13, 213, 195, 0.3) !important;
+}
+
+/* Overview Summary Card and Queue List Cards */
+.container div[style*="1e3a5f"],
+.container div[style*="background: #fff"],
+.container div[style*="background-color: #fff"],
+.container li[style*="f0f0f0"] {
+  background: rgba(17, 24, 39, 0.75) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 16px !important;
+  color: #cbd5e1 !important;
+}
+
+.container div[style*="1e3a5f"] {
+  border-color: rgba(13, 213, 195, 0.2) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(13, 213, 195, 0.03) !important;
+}
+
+/* Inline card headers inside list views */
+.container div[style*="flex-direction: column"] > li {
+  margin-top: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+/* Status banners/badges inside cards */
+.container span[style*="4caf50"] { background: rgba(16, 185, 129, 0.15) !important; border: 1px solid rgba(16, 185, 129, 0.3) !important; color: #34d399 !important; }
+.container span[style*="ff9800"] { background: rgba(249, 115, 22, 0.15) !important; border: 1px solid rgba(249, 115, 22, 0.3) !important; color: #fb923c !important; }
+.container span[style*="f44336"] { background: rgba(244, 63, 94, 0.15) !important; border: 1px solid rgba(244, 63, 94, 0.3) !important; color: #f43f5e !important; }
+
+/* In-room current patient banner */
+.container div[style*="e8f5e9"] {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  border-radius: 8px !important;
+}
+
+/* Patient wait queue pills */
+.container span[style*="e3f2fd"] {
+  background: rgba(14, 165, 233, 0.15) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(14, 165, 233, 0.3) !important;
+  border-radius: 12px !important;
+}
+
+.container span[style*="fff3e0"] {
+  background: rgba(249, 115, 22, 0.15) !important;
+  color: #fb923c !important;
+  border: 1px solid rgba(249, 115, 22, 0.3) !important;
+  border-radius: 12px !important;
+}
+
+/* Patient wait list order block and skipped order block backgrounds */
+.container div[style*="f8f8f8"] {
+  background: rgba(15, 23, 42, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.container div[style*="fff8f0"] {
+  background: rgba(249, 115, 22, 0.08) !important;
+  border: 1px solid rgba(249, 115, 22, 0.18) !important;
+}
+
+/* Active Timer Banner */
+.container div[style*="fff3cd"],
+.container div[style*="ffebee"] {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  border-radius: 8px !important;
+}
+
+.container div[style*="fff3cd"] p,
+.container div[style*="ffebee"] p {
+  color: #f43f5e !important;
+  text-shadow: 0 0 10px rgba(244, 63, 94, 0.2) !important;
+}
+
+/* Modals structures styles overrides */
+.modalOverlay,
+div[style*="position: fixed"][style*="rgba(0,0,0,0.6)"] {
+  background-color: rgba(3, 7, 18, 0.6) !important;
+  backdrop-filter: blur(6px) !important;
+}
+
+.modalContent,
+div[style*="background: white"][style*="max-width: 550px"],
+div[style*="background: white"][style*="max-width: 420px"] {
+  background: #0f172a !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(13, 213, 195, 0.2) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 16px !important;
+}
+
+/* Modal text elements styling overrides */
+div[style*="max-width: 550px"] h2,
+div[style*="max-width: 420px"] h2,
+div[style*="max-width: 550px"] h3 {
+  color: #ffffff !important;
+}
+
+div[style*="max-width: 550px"] p,
+div[style*="max-width: 420px"] p {
+  color: #94a3b8 !important;
+}
+
+/* Modal form inputs styling overrides */
+div[style*="max-width: 550px"] input,
+div[style*="max-width: 550px"] select {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  font-family: inherit !important;
+}
+
+div[style*="max-width: 550px"] input:focus,
+div[style*="max-width: 550px"] select:focus {
+  outline: none !important;
+  border-color: #0dd5c3 !important;
+  box-shadow: 0 0 0 3px rgba(13, 213, 195, 0.15) !important;
+}
+
+/* Offline Walk-In slip box style inside success walkin */
+div[style*="border: 2px dashed #ccc"] {
+  border: 2px dashed rgba(13, 213, 195, 0.3) !important;
+  background: rgba(13, 213, 195, 0.05) !important;
+  border-radius: 8px !important;
+}
+
+div[style*="border: 2px dashed #ccc"] div[style*="color: #1565c0"] {
+  color: #0dd5c3 !important;
+  text-shadow: 0 0 10px rgba(13, 213, 195, 0.3) !important;
+}
+
+/* walk-in slip QR image container override */
+div[style*="margin: 20px 0"] img {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: #ffffff !important;
+  padding: 8px !important;
+}
+
+/* ===== STAFF PROFILE & QUEUE LIST STYLING OVERRIDES ===== */
+
+/* Robust override for the Assigned Queues list items to avoid white background */
+.container ul li {
+  background: rgba(17, 24, 39, 0.75) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 16px !important;
+  color: #cbd5e1 !important;
+}
+
+/* Profile editor page background and heading text */
+div[style*="rgb(158, 184, 201)"] {
+  background: linear-gradient(135deg, #090f1d 0%, #05070c 100%) !important;
+}
+
+div[style*="rgb(158, 184, 201)"] h2 {
+  color: #ffffff !important;
+}
+
+div[style*="rgb(158, 184, 201)"] span[style*="color:#333"],
+div[style*="rgb(158, 184, 201)"] span[style*="color: #333"] {
+  color: #94a3b8 !important;
+}
+
+div[style*="rgb(158, 184, 201)"] p[style*="color: #666"] {
+  color: #64748b !important;
+}
+
+/* Card inside the profile page */
+div[style*="rgb(158, 184, 201)"] .card {
+  border-radius: 16px !important;
+  background: rgba(17, 24, 39, 0.75) !important;
+  border: 1px solid rgba(13, 213, 195, 0.15) !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+  color: #cbd5e1 !important;
+}
+
+/* Form inputs & select overrides inside these sections */
+div[style*="rgb(158, 184, 201)"] input {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f8fafc !important;
+  border-radius: 8px !important;
+  padding: 10px 14px !important;
+  font-family: inherit !important;
+}
+
+div[style*="rgb(158, 184, 201)"] input:focus {
+  outline: none !important;
+  border-color: #0dd5c3 !important;
+  box-shadow: 0 0 0 3px rgba(13, 213, 195, 0.15) !important;
+}
+
+/* Profile update pink button overrides */
+div[style*="rgb(158, 184, 201)"] button[type="submit"],
+form button[style*="pink"] {
+  background: linear-gradient(135deg, #0dd5c3 0%, #0284c7 100%) !important;
+  color: #0f172a !important;
+  font-weight: 750 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(13, 213, 195, 0.2) !important;
+  transition: all 0.25s ease !important;
+  cursor: pointer !important;
+}
+
+div[style*="rgb(158, 184, 201)"] button[type="submit"]:hover,
+form button[style*="pink"]:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(13, 213, 195, 0.4) !important;
+}
