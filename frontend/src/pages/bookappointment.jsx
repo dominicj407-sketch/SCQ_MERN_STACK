@@ -19,7 +19,7 @@ function BookAppointment() {
     const [doctorQueueMap, setDoctorQueueMap] = useState({});
     const [pageLoading, setPageLoading] = useState(true);
 
-    // Reports upload
+    
     const [reportFiles, setReportFiles] = useState([]);
 
     const navigate   = useNavigate();
@@ -122,7 +122,7 @@ function BookAppointment() {
         return `🟡 ${st}${statsStr}`;
     }
 
-    // ── File Upload Handler ────────────────────────────────────────────────
+    
     function handleFileSelect(e) {
         const files = Array.from(e.target.files);
         if (files.length + reportFiles.length > 5) {
@@ -147,7 +147,7 @@ function BookAppointment() {
         setReportFiles(prev => prev.filter((_, i) => i !== index));
     }
 
-    // ── Generate Receipt ───────────────────────────────────────────────────
+    
     function generateReceipt(result) {
         const doctorName = doctors.find(d => d._id === selectedDoctor)?.name || 'N/A';
         const deptName = departments.find(d => d._id === selectedDept)?.name || 'N/A';
@@ -202,7 +202,7 @@ ${result.qrCode ? `<div class="qr"><p style="color:#666;font-size:13px">Show thi
         if (!sdkLoaded) { alert("Razorpay SDK failed to load"); setLoading(false); return; }
 
         try {
-            // NEW: Pre-validate before even loading Razorpay or generating Order!
+            
             await API.post("/patients/validateBooking", { patientId, doctorId: selectedDoctor });
         } catch (err) {
             const msg = err.response?.data?.msg || err.response?.data?.message || "Validation failed";
@@ -337,7 +337,7 @@ ${result.qrCode ? `<div class="qr"><p style="color:#666;font-size:13px">Show thi
                                 )}
                             </div>
 
-                            {/* ── Report Upload Section ──────────────────────── */}
+                            {}
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>📄 Upload Previous Reports (optional):</label>
                                 <p style={{ fontSize: '12px', color: '#888', margin: '0 0 8px 0' }}>
@@ -380,7 +380,7 @@ ${result.qrCode ? `<div class="qr"><p style="color:#666;font-size:13px">Show thi
                 </div>
             </div>
 
-            {/* ── Success Modal ──────────────────────────────────────────── */}
+            {}
             {showSuccess && bookingResult && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',

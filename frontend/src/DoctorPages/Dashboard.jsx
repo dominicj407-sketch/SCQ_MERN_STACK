@@ -19,18 +19,19 @@ function Doctordash() {
     let [scanElapsed, setScanElapsed] = useState(0);
     let [queueStatus, setQueueStatus] = useState("");
     let [pausedAt, setPausedAt] = useState(null);
+    let [queueDetails, setQueueDetails] = useState(null);
 
-    // Notes
+    
     let [notes, setNotes] = useState("");
     let [notesSaving, setNotesSaving] = useState(false);
     let [notesMsg, setNotesMsg] = useState("");
 
-    // Checkout modal & prescriptions
+    
     let [showCheckoutModal, setShowCheckoutModal] = useState(false);
     let [prescriptionText, setPrescriptionText] = useState("");
     let [prescriptionUrl, setPrescriptionUrl] = useState("");
 
-    // Patient History & Reports
+    
     let [patientHistory, setPatientHistory] = useState([]);
     let [showHistory, setShowHistory] = useState(false);
     let [appointmentReports, setAppointmentReports] = useState([]);
@@ -38,7 +39,7 @@ function Doctordash() {
 
     const scanTimerRef = useRef(null);
 
-    // ── Fetch Doctor Info ──────────────────────────────────────────────────
+    
     async function getdoctorinfo() {
         try {
             let res = await API.get("/doctor/me");
@@ -57,7 +58,7 @@ function Doctordash() {
 
     useEffect(() => { getdoctorinfo(); }, []);
 
-    // ── Update Doctor Status ───────────────────────────────────────────────
+    
     async function updatestatus() {
         if (!doctor || !doctor._id) return;
         try {
@@ -73,7 +74,7 @@ function Doctordash() {
         }
     }, [active]);
 
-    // ── Fetch Current Patient ──────────────────────────────────────────────
+    
     async function fetchCurrentPatient(doctorId) {
         if (!doctorId) return;
         try {
@@ -95,12 +96,12 @@ function Doctordash() {
                 stopScanTimer();
                 fetchQueueStats(res.data.queueId);
 
-                // Load notes from current appointment
+                
                 if (res.data.currentAppointment) {
                     setNotes(res.data.currentAppointment.notes || "");
                     setAppointmentReports(res.data.currentAppointment.reports || []);
                 }
-                // Fetch patient history
+                
                 if (res.data.currentPatient?._id) {
                     fetchPatientHistory(res.data.currentPatient._id);
                 }
@@ -122,7 +123,39 @@ function Doctordash() {
         }
     }
 
-    // ── Fetch Patient History ──────────────────────────────────────────────
+    async function fetchQueueDetails() {
+        try {
+            let res = await API.get("/doctor/queue/details");
+            if (res.data.found) {
+                setQueueDetails(res.data.queue);
+                if (res.data.queue._id) {
+                    setcurrentqueueId(res.data.queue._id);
+                }
+            } else {
+                setQueueDetails(null);
+            }
+        } catch (e) {
+            console.error("Error fetching queue details:", e);
+        }
+    }
+
+    async function handleEmergencyOverride(appointmentId) {
+        if (!queueID) return;
+        if (!window.confirm("Are you sure you want to flag this appointment as an EMERGENCY override? This will move them to Position 1.")) return;
+        try {
+            await API.post("/doctor/emergencyOverride", { queueId: queueID, appointmentId });
+            alert("🚨 Emergency override successful. Patient moved to Position 1.");
+            fetchQueueDetails();
+            if (doctor && doctor._id) {
+                fetchCurrentPatient(doctor._id);
+            }
+        } catch (err) {
+            console.error("Emergency override error:", err);
+            alert("Error: " + (err.response?.data?.msg || err.message));
+        }
+    }
+
+    
     async function fetchPatientHistory(patientId) {
         try {
             let res = await API.get(`/doctor/patientHistory/${patientId}`);
@@ -130,7 +163,7 @@ function Doctordash() {
         } catch (e) { setPatientHistory([]); }
     }
 
-    // ── Fetch Queue Stats ──────────────────────────────────────────────────
+    
     async function fetchQueueStatsForDoctor(doctorId) {
         try {
             let queueRes = await API.get(`/patients/getQueuesByDId/${doctorId}`);
@@ -158,6 +191,7 @@ function Doctordash() {
         if (doctor && doctor._id) {
             fetchCurrentPatient(doctor._id);
             fetchQueueStatsForDoctor(doctor._id);
+            fetchQueueDetails();
         }
     }, [doctor]);
 
@@ -165,13 +199,14 @@ function Doctordash() {
         if (!doctor || !doctor._id) return;
         const pollInterval = setInterval(() => {
             fetchCurrentPatient(doctor._id);
+            fetchQueueDetails();
             if (queueID) fetchQueueStats(queueID);
             else fetchQueueStatsForDoctor(doctor._id);
         }, 3000);
         return () => clearInterval(pollInterval);
     }, [doctor?._id, queueID]);
 
-    // ── Scan Timer ─────────────────────────────────────────────────────────
+    
     useEffect(() => {
         if (waitingForScan && queueStatus !== "PAUSED") startScanTimer();
         else stopScanTimer();
@@ -186,7 +221,7 @@ function Doctordash() {
         if (scanTimerRef.current) { clearInterval(scanTimerRef.current); scanTimerRef.current = null; }
     };
 
-    // ── Pause / Resume ─────────────────────────────────────────────────────
+    
     async function handlePauseQueue() {
         if (!queueID) return;
         try {
@@ -203,7 +238,7 @@ function Doctordash() {
         } catch (e) { alert("Error resuming queue: " + (e.response?.data?.msg || e.message)); }
     }
 
-    // ── Save Notes ─────────────────────────────────────────────────────────
+    
     async function saveNotes() {
         if (!currentAppointment?._id) return;
         setNotesSaving(true);
@@ -217,7 +252,7 @@ function Doctordash() {
         setNotesSaving(false);
     }
 
-    // ── Mark Complete ──────────────────────────────────────────────────────
+    
     async function checkOut(queueId) {
         try {
             let res = await API.post("/doctor/markAsComplete", { queueId, prescriptionText, prescriptionUrl });
@@ -240,7 +275,7 @@ function Doctordash() {
         } catch (e) { alert(e.response?.data?.msg || "Error during checkout"); }
     }
 
-    // ── Start Day ──────────────────────────────────────────────────────────
+    
     const startDay = () => {
         setDayStarted(true); setActive('available'); setCompletedCount(0);
         if (remainingCount > 0) {
@@ -283,7 +318,7 @@ function Doctordash() {
                             <h2>LIVE QUEUE</h2>
 
                             <div className={Styles.card} style={{ minHeight: '35vh', width: '65ch', borderRadius: '10px', padding: '20px' }}>
-                                {/* Queue Status Banner */}
+                                {}
                                 {queueStatus && (
                                     <div style={{
                                         padding: '8px 16px', borderRadius: '20px', fontWeight: 'bold', fontSize: '14px',
@@ -298,7 +333,7 @@ function Doctordash() {
 
                                 <h3>Current Patient: {patient?.name || "None"}</h3>
 
-                                {/* Scan Timer */}
+                                {}
                                 {waitingForScan && !isPaused && (
                                     <div style={{
                                         marginTop: '10px', padding: '12px', borderRadius: '8px',
@@ -317,13 +352,13 @@ function Doctordash() {
                                     </div>
                                 )}
 
-                                {/* Stats */}
+                                {}
                                 <div style={{ marginTop: '12px', fontSize: '15px', fontWeight: 'bold' }}>
                                     <p>📊 Total: {completedCount + remainingCount + skippedCount}</p>
                                     <p>✅ Completed: {completedCount} | ⏳ Waiting: {remainingCount} | ⏭️ Skipped: {skippedCount}</p>
                                 </div>
 
-                                {/* Action Buttons */}
+                                {}
                                 <div style={{ display: 'flex', gap: '10px', marginTop: '15px', flexWrap: 'wrap' }}>
                                     {!dayStarted ? (
                                         <button onClick={startDay} className={Styles.btn} style={{ color: 'black', fontWeight: 'bold', fontSize: '16px' }}>🟢 Start Day</button>
@@ -366,11 +401,11 @@ function Doctordash() {
                                 </div>
                             </div>
 
-                            {/* ═══ IN-ROOM PANEL: Notes + Reports + History ═══ */}
+                            {}
                             {isInRoom && (
                                 <div style={{ width: '65ch', marginTop: '10px' }}>
 
-                                    {/* ── Doctor Notes ─────────────────────────── */}
+                                    {}
                                     <div style={{
                                         background: 'rgba(17, 24, 39, 0.75)', borderRadius: '10px', padding: '20px', marginBottom: '15px',
                                         border: '1px solid rgba(59, 130, 246, 0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
@@ -396,7 +431,7 @@ function Doctordash() {
                                         </div>
                                     </div>
 
-                                    {/* ── Patient Reports (uploaded during booking) ─── */}
+                                    {}
                                     <div style={{
                                         background: 'rgba(17, 24, 39, 0.75)', borderRadius: '10px', padding: '20px', marginBottom: '15px',
                                         border: '1px solid rgba(249, 115, 22, 0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
@@ -490,6 +525,70 @@ function Doctordash() {
                                 <button className={`${Styles.btn} ${active === 'break' ? Styles.breakActive : ''}`} onClick={() => setActive('break')}>Break</button>
                                 <button className={`${Styles.btn} ${active === 'inroom' ? Styles.roomActive : ''}`} onClick={() => setActive('inroom')}>In-Room</button>
                             </div>
+
+                            {/* Waiting Queue List Card */}
+                            {queueDetails && (queueDetails.waiting?.length > 0 || queueDetails.skipped?.length > 0) && (
+                                <div className={Styles.card} style={{ width: '65ch', borderRadius: '16px', padding: '24px', marginTop: '20px', alignItems: 'stretch' }}>
+                                    <h3 style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '12px', marginTop: 0, color: '#ffffff', fontSize: '18px', fontWeight: '700' }}>⏳ Waiting Patients ({queueDetails.waiting?.length || 0})</h3>
+                                    
+                                    {queueDetails.waiting?.length > 0 ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px', marginTop: '12px' }}>
+                                            {queueDetails.waiting.map((app, index) => (
+                                                <div key={app._id} style={{
+                                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                                    padding: '12px 16px', borderRadius: '10px', background: 'rgba(15, 23, 42, 0.5)',
+                                                    border: '1px solid rgba(255, 255, 255, 0.06)'
+                                                }}>
+                                                    <span style={{ fontWeight: '600', color: '#f8fafc' }}>
+                                                        #{app.tokenNumber} — {app.patientId?.name || 'Unknown'}
+                                                    </span>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                        <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: '500' }}>
+                                                            Position {index + 1}
+                                                        </span>
+                                                        {index > 0 && (
+                                                            <button
+                                                                onClick={() => handleEmergencyOverride(app._id)}
+                                                                style={{
+                                                                    padding: '6px 12px', background: '#dc2626',
+                                                                    color: 'white', border: 'none', borderRadius: '6px',
+                                                                    cursor: 'pointer', fontSize: '12px', fontWeight: 'bold',
+                                                                    boxShadow: '0 4px 10px rgba(220, 38, 38, 0.3)',
+                                                                    transition: 'all 0.2s'
+                                                                }}
+                                                            >
+                                                                🚨 Emergency
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p style={{ color: '#94a3b8', fontSize: '14px', marginTop: '12px' }}>No patients waiting.</p>
+                                    )}
+
+                                    {queueDetails.skipped?.length > 0 && (
+                                        <>
+                                            <h3 style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '12px', marginTop: '20px', color: '#ffffff', fontSize: '18px', fontWeight: '700' }}>⏭️ Skipped Patients ({queueDetails.skipped?.length || 0})</h3>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '12px' }}>
+                                                {queueDetails.skipped.map((app) => (
+                                                    <div key={app._id} style={{
+                                                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                                        padding: '12px 16px', borderRadius: '10px', background: 'rgba(15, 23, 42, 0.3)',
+                                                        border: '1px solid rgba(255, 255, 255, 0.04)', opacity: 0.8
+                                                    }}>
+                                                        <span style={{ fontWeight: '600', color: '#94a3b8' }}>
+                                                            #{app.tokenNumber} — {app.patientId?.name || 'Unknown'}
+                                                        </span>
+                                                        <span style={{ fontSize: '12px', color: '#fb923c', fontWeight: '600' }}>No-show</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>}

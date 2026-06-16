@@ -4,7 +4,7 @@ import API from "../api";
 function TVDisplay() {
     const [queues, setQueues] = useState([]);
     const [loading, setLoading] = useState(true);
-    const lastAnnounced = useRef({}); // doctorId -> currentPatientId
+    const lastAnnounced = useRef({}); 
 
     async function fetchDisplayData() {
         try {
@@ -12,7 +12,7 @@ function TVDisplay() {
             const activeQueues = res.data.queues || [];
             setQueues(activeQueues);
             
-            // Check for new patients to announce
+            
             activeQueues.forEach(q => {
                 if (q.currentPatient && q.currentPatient._id) {
                     const docId = q.doctorId?._id;
@@ -32,10 +32,10 @@ function TVDisplay() {
 
     function announcePatient(tokenNumber, doctorName) {
         if ("speechSynthesis" in window) {
-            window.speechSynthesis.cancel(); // cancel any ongoing speech
+            window.speechSynthesis.cancel(); 
             const text = `Token number ${tokenNumber}, please proceed to Doctor ${doctorName}'s room.`;
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9; // speak slightly slower for clarity
+            utterance.rate = 0.9; 
             utterance.pitch = 1.0;
             window.speechSynthesis.speak(utterance);
         }
@@ -71,7 +71,7 @@ function TVDisplay() {
             minHeight: "100vh", backgroundColor: "#0f172a", color: "#f8fafc",
             fontFamily: "'Outfit', 'Inter', sans-serif", padding: "30px", boxSizing: "border-box"
         }}>
-            {/* Header */}
+            {}
             <header style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 borderBottom: "2px solid #1e293b", paddingBottom: "20px", marginBottom: "30px"
@@ -89,7 +89,7 @@ function TVDisplay() {
                 </div>
             </header>
 
-            {/* Grid Container */}
+            {}
             {queues.length === 0 ? (
                 <div style={{ height: "60vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
                     <div style={{ textShadow: "0 0 20px rgba(56, 189, 248, 0.2)", color: "#94a3b8", fontSize: "20px" }}>
@@ -112,7 +112,7 @@ function TVDisplay() {
                                 overflow: "hidden", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.3)",
                                 transition: "all 0.3s"
                             }}>
-                                {/* Doctor Info Header */}
+                                {}
                                 <div style={{
                                     background: q.status === "PAUSED" 
                                         ? "linear-gradient(90deg, #b45309 0%, #d97706 100%)" 
@@ -133,7 +133,7 @@ function TVDisplay() {
                                     </span>
                                 </div>
 
-                                {/* Active Patient Section */}
+                                {}
                                 <div style={{
                                     padding: "24px", borderBottom: "1px solid #334155", textAlign: "center",
                                     background: "rgba(30, 41, 59, 0.4)"

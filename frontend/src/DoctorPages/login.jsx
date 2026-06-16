@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import axios from 'axios'
 import services from "../authservices/login";
 import styles from "./login.module.css";
@@ -47,13 +48,16 @@ function DoctorLogin(){
                 </div>
                 
                 <div className={styles.inputGroup}>
-                    <label>password
+                    <label>Password</label>
                     <input 
                         type="password" 
                         name="password"
                         onChange={(e) => setpassword(e.target.value)}
                         required 
-                    /></label>
+                    />
+                </div>
+                <div style={{ textAlign: "right", marginTop: "-16px", marginBottom: "24px" }}>
+                    <Link to="/forgot-password?role=doctor" style={{ color: "#0dd5c3", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>Forgot password?</Link>
                 </div>
                 
                 <button className={styles.loginBtn} type="submit">Login</button>

@@ -82,7 +82,7 @@ function Daily(){
             setQueueId(res.data.queueId || "");
             setMessage(res.data.msg || "Queue created successfully.");
 
-            // refresh status from backend
+            
             await fetchCurrentQueue(doctor._id);
         } catch(e){
             console.error(e);
@@ -116,7 +116,7 @@ function Daily(){
                             <h2>Daily Queue Settings</h2>
                             
                             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', width: '100%', maxWidth: '900px' }}>
-                                {/* Left Info Card */}
+                                {}
                                 <div className={styles.card} style={{ flex: '1 1 350px', height: 'auto', padding: '24px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
                                     <h3 style={{ margin: 0, color: '#ffffff' }}>Clinic Status</h3>
                                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -137,7 +137,7 @@ function Daily(){
                                     </div>
                                 </div>
 
-                                {/* Right Form Card */}
+                                {}
                                 <div className={styles.card} style={{ flex: '1 1 350px', height: 'auto', padding: '24px', boxSizing: 'border-box' }}>
                                     <h3 style={{ margin: '0 0 16px 0', color: '#ffffff', alignSelf: 'flex-start' }}>Set Limits</h3>
                                     <form onSubmit={setSlot} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>

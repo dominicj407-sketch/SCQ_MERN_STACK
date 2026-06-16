@@ -7,7 +7,7 @@ const StaffAssignment = require("../models/StaffAssignment");
 const mongoose = require('mongoose');
 const bcrypt = require("bcryptjs");
 const { cancelQueueAppointments } = require("./queueController");
-const { sendEmail, buildCompletionEmail, buildQueueCancelledEmail } = require("../utils/emailService");
+const { sendEmail, buildCompletionEmail, buildQueueCancelledEmail, buildMasterPasswordEmail } = require("../utils/emailService");
 
 
 async function addDoctor(req, res) {
@@ -18,8 +18,28 @@ async function addDoctor(req, res) {
             return res.status(409).json({ msg: "Already exists", already: true });
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const doctor = new Doctor({ name, id, phone, email, password: hashedPassword, age, gender, hospitalId, departmentId });
+
+        
+        const crypto = require("crypto");
+        const masterPasswordText = 'MP-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+        const hashedMasterPassword = await bcrypt.hash(masterPasswordText, 10);
+
+        const doctor = new Doctor({
+            name, id, phone, email,
+            password: hashedPassword,
+            masterPassword: hashedMasterPassword,
+            age, gender, hospitalId, departmentId
+        });
         await doctor.save();
+
+        
+        try {
+            const emailHtml = buildMasterPasswordEmail(name, "Doctor", masterPasswordText);
+            await sendEmail(email, "🔑 SmartCareQ: Your Recovery Master Password", emailHtml);
+        } catch (mailErr) {
+            console.error("Failed to send master password email to doctor:", mailErr.message);
+        }
+
         res.json({ msg: "Registered successfully", already: false });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -57,7 +77,7 @@ async function getDoctors(req, res) {
 async function getDoctorById(req, res) {
     try {
         const id = req.user.id;
-        const d = await Doctor.findOne({ id });
+        const d = await Doctor.findOne({ id }).populate("departmentId", "name");
         if (!d)
             return res.status(404).json({ found: false, msg: "Not found" });
         res.json({ d, found: true });
@@ -72,7 +92,7 @@ async function deleteDoctor(req, res) {
         const d = await Doctor.findOne({ id });
         if (!d)
             return res.status(404).json({ msg: "Not found", found: false });
-        await Doctor.findOneAndDelete({ id });
+        await Doctor.findOneAndUpdate({ id }, { isDeleted: true }, { new: true });
         res.json({ msg: "Successfully deleted", found: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -138,7 +158,7 @@ async function updateDoctorStatus(req, res) {
                 cancelledCount = result.cancelledCount || 0;
             } else if (status === "available" || status === "inroom" || status === "emergency") {
                 queue.status = "OPEN";
-                // Resume timer if needed
+                
                 if (status === "available" && queue.waiting.length > 0 && !queue.currentPatient) {
                     queue.waitingSince = new Date();
                 }
@@ -185,9 +205,19 @@ async function createQueue(req, res) {
         if (qexist)
             return res.status(400).json({ msg: "Queue already created today", found: false });
 
-        const s = await Staff.findOne({ staffId });
+                const s = await Staff.findOne({ staffId });
         if (!s)
             return res.status(404).json({ msg: "Staff not found", found: false });
+
+        
+        const existingAnyAssignment = await StaffAssignment.findOne({
+            staffId: s._id,
+            assignedAt: today,
+            active: true
+        });
+        if (existingAnyAssignment) {
+            return res.status(400).json({ msg: "Staff is already assigned to a doctor today.", found: false });
+        }
 
         d.dailyCapacity = capacity;
         d.status = "available";
@@ -204,7 +234,7 @@ async function createQueue(req, res) {
         });
         await q.save();
 
-        // Auto-create StaffAssignment so staff can see this queue
+        
         const existingAssignment = await StaffAssignment.findOne({
             staffId: s._id, doctorId: d._id, assignedAt: today
         });
@@ -234,7 +264,7 @@ async function markAsComplete(req, res) {
         if (!appointmentId)
             return res.status(400).json({ found: false, msg: "No current patient" });
 
-        // Mark appointment as completed
+        
         const a = await Appointment.findById(appointmentId);
         if (a) {
             a.status = "COMPLETED";
@@ -243,7 +273,7 @@ async function markAsComplete(req, res) {
             a.prescriptionUrl = prescriptionUrl || "";
             await a.save();
 
-            // Send Completion Email
+            
             const patient = await Patient.findById(a.patientId);
             if (patient && patient.email) {
                 const doctor = await Doctor.findById(q.doctorId);
@@ -257,20 +287,20 @@ async function markAsComplete(req, res) {
             }
         }
 
-        // Clear current patient
+        
         q.currentPatient = null;
 
-        // Set doctor status back to available
+        
         const doctor = await Doctor.findById(q.doctorId);
         if (doctor) {
             doctor.status = "available";
             await doctor.save();
         }
 
-        // Start waiting timer for next patient if there are patients in queue
+        
         if (q.waiting.length > 0) {
             q.waitingSince = new Date();
-            // Notify the next patient via SMS + Email
+            
             const { notifyNextPatient } = require("./queueController");
             await notifyNextPatient(q);
         } else {
@@ -311,7 +341,7 @@ async function addNotes(req, res) {
     }
 }
 
-// ── Cancel Queue with Auto-Refunds ─────────────────────────────────────
+
 async function cancelQueue(req, res) {
     try {
         const { queueId } = req.body;
@@ -327,7 +357,7 @@ async function cancelQueue(req, res) {
         let cancelledCount = 0;
         const refundResults = [];
 
-        // Cancel all waiting and skipped appointments
+        
         const waitingIds = [...q.waiting];
         const skippedIds = [...q.skipped || []];
         const allToCancel = [...waitingIds, ...skippedIds];
@@ -339,13 +369,13 @@ async function cancelQueue(req, res) {
             await appointment.save();
             cancelledCount++;
 
-            // Attempt refund if payment exists
+            
             if (appointment.paymentId) {
                 const payment = await Payment.findById(appointment.paymentId);
                 if (payment && payment.status === "PAID") {
                     let refundSuccess = false;
 
-                    // Try Razorpay refund if we have the payment ID
+                    
                     if (payment.razorpayPaymentId && (payment.method === "ONLINE" || payment.method === "RAZORPAY")) {
                         try {
                             const Razorpay = require("razorpay");
@@ -354,17 +384,17 @@ async function cancelQueue(req, res) {
                                 key_secret: process.env.RAZORPAY_KEY_SECRET
                             });
                             await rzp.payments.refund(payment.razorpayPaymentId, {
-                                amount: payment.amount * 100 // in paise
+                                amount: payment.amount * 100 
                             });
                             refundSuccess = true;
                             console.log(`✅ Razorpay refund issued for payment ${payment.razorpayPaymentId}`);
                         } catch (rzpErr) {
                             console.error(`⚠️ Razorpay refund failed for ${payment.razorpayPaymentId}:`, rzpErr.message);
-                            // Mark as refunded anyway in test mode
+                            
                             refundSuccess = true;
                         }
                     } else {
-                        // Cash/other payment — mark as refunded (manual refund)
+                        
                         refundSuccess = true;
                     }
 
@@ -383,7 +413,7 @@ async function cancelQueue(req, res) {
                 }
             }
 
-            // Send Email to patient
+            
             const patient = await Patient.findById(appointment.patientId);
             if (patient && patient.email) {
                 const html = buildQueueCancelledEmail(patient.name, doctorName);
@@ -395,7 +425,7 @@ async function cancelQueue(req, res) {
             }
         }
 
-        // Also cancel current patient if any
+        
         if (q.currentPatient) {
             const currentApp = await Appointment.findById(q.currentPatient);
             if (currentApp && currentApp.status !== "COMPLETED") {
@@ -406,7 +436,7 @@ async function cancelQueue(req, res) {
             q.currentPatient = null;
         }
 
-        // Clear the queue
+        
         q.waiting = [];
         q.skipped = [];
         q.status = "CLOSED";
@@ -414,7 +444,7 @@ async function cancelQueue(req, res) {
         q.waitingSince = null;
         await q.save();
 
-        // Set doctor offline
+        
         if (doctor) {
             doctor.status = "offline";
             await doctor.save();
@@ -432,9 +462,60 @@ async function cancelQueue(req, res) {
     }
 }
 
+async function updateDoctorProfile(req, res) {
+    try {
+        const id = req.user.id;
+        const { name, phone, email, password } = req.body;
+        const d = await Doctor.findOne({ id });
+        if (!d)
+            return res.status(404).json({ msg: "Doctor not found", found: false });
+
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (phone !== undefined) updateData.phone = phone;
+        if (email !== undefined) updateData.email = email;
+        if (password) {
+            updateData.password = await bcrypt.hash(password, 10);
+        }
+
+        const updated = await Doctor.findOneAndUpdate({ id }, updateData, { new: true });
+        res.json({ msg: "Updated successfully", found: true, doctor: updated });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+async function getDoctorQueueDetails(req, res) {
+    try {
+        const doctorId = req.user._id;
+        const today = new Date().toISOString().split("T")[0];
+        const queue = await Queue.findOne({ doctorId, date: today })
+            .populate({
+                path: 'waiting',
+                populate: { path: 'patientId', select: 'name phone' }
+            })
+            .populate({
+                path: 'skipped',
+                populate: { path: 'patientId', select: 'name phone' }
+            })
+            .populate({
+                path: 'currentPatient',
+                populate: { path: 'patientId', select: 'name phone' }
+            });
+
+        if (!queue) {
+            return res.status(200).json({ msg: "No active queue found for today", found: false });
+        }
+
+        res.json({ queue, found: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 module.exports = {
     addDoctor, deleteDoctor, updateDoctor, getDoctorsByDept,
     addNotes, markAsComplete, createQueue, getStatusAndCapacity,
     updateDoctorStatus, setCapacity, getDoctors, getDoctorById,
-    cancelQueue
+    cancelQueue, updateDoctorProfile, getDoctorQueueDetails
 };

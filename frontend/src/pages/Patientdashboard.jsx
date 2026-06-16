@@ -62,7 +62,7 @@ function Patientdashboard() {
         return "Good evening";
     };
 
-    // Handle Google OAuth redirect token
+    
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const token = params.get('token');
@@ -73,12 +73,12 @@ function Patientdashboard() {
         }
     }, []);
 
-    // Consolidated Initial Load: Patient Info + Active Appointment
+    
     useEffect(() => {
         let isMounted = true;
         const fetchInitialData = async () => {
             try {
-                // 1. Fetch Patient Info
+                
                 let res = await API.get("/patients/getPatientById/me");
                 if (!isMounted) return;
                 
@@ -86,7 +86,7 @@ function Patientdashboard() {
                 setpatient(p.name);
                 setPatientId(p._id);
 
-                // 2. Fetch Active Appointment immediately
+                
                 try {
                     let appRes = await API.get("/patients/getAppointments");
                     if (!isMounted) return;
@@ -168,7 +168,7 @@ function Patientdashboard() {
         };
     }, []);
 
-    // Polling Effect: Periodically update active appointment & queue info in background
+    
     useEffect(() => {
         if (!patientId) return;
 
@@ -253,7 +253,7 @@ function Patientdashboard() {
                         <div className={`${styles.appointmentCard} ${styles.appointmentCardActive}`}>
                             <h2 className={styles.appointmentTitle}>Current Appointment</h2>
 
-                            {/* Queue status banner */}
+                            {}
                             {queuePaused && (
                                 <div style={{
                                     padding: '10px 16px', borderRadius: '8px', marginBottom: '12px',
@@ -299,7 +299,7 @@ function Patientdashboard() {
                                 <p className={styles.currentMessage}>🎉 You are currently being seen by the doctor!</p>
                             )}
 
-                            {/* Live Queue Info */}
+                            {}
                             {liveQueue && !currentAppointment.currentPatient && (
                                 <div style={{
                                     marginTop: '16px', padding: '16px', borderRadius: '10px',

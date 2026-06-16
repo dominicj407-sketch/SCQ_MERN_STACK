@@ -4,7 +4,7 @@ import axios from 'axios'
 import API from "../api";
 import styles from "./login.module.css";
 function PatientLogin(){
-    //let navigate=useNavigate();
+    
     let [email,setemail]=useState("");
     let [password,setpassword]=useState("")
     async function validatedata(){
@@ -48,6 +48,9 @@ function PatientLogin(){
                         onChange={(e) => setpassword(e.target.value)}
                         required 
                     />
+                </div>
+                <div style={{ textAlign: "right", marginTop: "-16px", marginBottom: "24px" }}>
+                    <Link to="/forgot-password?role=patient" style={{ color: "#0dd5c3", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>Forgot password?</Link>
                 </div>
                 
                 <button className={styles.loginBtn} type="submit">Login</button>

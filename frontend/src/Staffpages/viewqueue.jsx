@@ -110,7 +110,7 @@ function ViewQueue() {
                                 border: '1px solid rgba(255, 255, 255, 0.08)',
                                 borderLeft: `5px solid ${getStatusColor(queue?.status)}`
                             }}>
-                                {/* Header */}
+                                {}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                                     <div>
                                         <h3 style={{ margin: '0 0 4px 0', color: '#ffffff' }}>
@@ -130,7 +130,7 @@ function ViewQueue() {
                                     </span>
                                 </div>
 
-                                {/* Stats Row */}
+                                {}
                                 <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
                                     <div style={{ flex: 1, minWidth: '100px', background: '#e3f2fd', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
                                         <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1565c0' }}>{waitingList.length}</div>
@@ -148,7 +148,7 @@ function ViewQueue() {
                                     </div>
                                 </div>
 
-                                {/* Current Patient */}
+                                {}
                                 {currentPatient && (
                                     <div style={{
                                         background: '#e8f5e9', padding: '12px 16px', borderRadius: '8px',
@@ -161,7 +161,7 @@ function ViewQueue() {
                                     </div>
                                 )}
 
-                                {/* Waiting Patients */}
+                                {}
                                 {waitingList.length > 0 && (
                                     <div style={{ marginBottom: '12px' }}>
                                         <h4 style={{ margin: '0 0 8px 0', color: '#2c3e50', fontSize: '14px' }}>⏳ Waiting Queue:</h4>
@@ -201,7 +201,7 @@ function ViewQueue() {
                                     </div>
                                 )}
 
-                                {/* Skipped Patients */}
+                                {}
                                 {skippedList.length > 0 && (
                                     <div>
                                         <h4 style={{ margin: '0 0 8px 0', color: '#e65100', fontSize: '14px' }}>⏭️ Skipped:</h4>

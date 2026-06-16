@@ -7,22 +7,22 @@ function Kiosk() {
     const [doctors, setDoctors] = useState([]);
     const [doctorQueueMap, setDoctorQueueMap] = useState({});
 
-    // Selection state
+    
     const [selectedDept, setSelectedDept] = useState("");
     const [selectedDoctor, setSelectedDoctor] = useState("");
 
-    // Form state
+    
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [age, setAge] = useState("");
     const [gender, setGender] = useState("");
 
-    // Checkout & Result
+    
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [bookingResult, setBookingResult] = useState(null);
 
-    // Fetch initial departments
+    
     useEffect(() => {
         const fetchDepts = async () => {
             try {
@@ -35,7 +35,7 @@ function Kiosk() {
         fetchDepts();
     }, []);
 
-    // Fetch doctors when department is selected
+    
     useEffect(() => {
         if (!selectedDept) {
             setDoctors([]);
@@ -49,7 +49,7 @@ function Kiosk() {
                 const docList = res.data.doctors || [];
                 setDoctors(docList);
 
-                // Fetch queue slot status for each doctor
+                
                 const qMap = {};
                 await Promise.all(docList.map(async (doc) => {
                     try {
@@ -110,19 +110,19 @@ function Kiosk() {
         setError("");
 
         try {
-            // 1. Create a dummy client payment (Kiosk uses counter cash payment simulation)
+            
             const payRes = await API.post("/patients/payment", {
-                patientId: "65bce0fc0a5687744b90b460", // temporary placeholder since patient account does not exist yet
+                patientId: "65bce0fc0a5687744b90b460", 
                 amount: 500,
-                method: "CASH" // Mark as CASH payment
+                method: "CASH" 
             });
 
             if (!payRes.data.payment?._id) {
                 throw new Error("Payment initialization failed");
             }
 
-            // 2. Register new walk-in patient in database
-            // Walk-in emails are automatically generated
+            
+            
             const walkinEmail = `kiosk_${Date.now()}@smartcareq.com`;
             const regRes = await API.post("/patients/registerPatient", {
                 name,
@@ -139,20 +139,20 @@ function Kiosk() {
 
             const patientId = regRes.data.patientId;
 
-            // 3. Book appointment with offline flag
+            
             const bookRes = await API.post("/patients/bookAppointment", {
                 patientId,
                 doctorId: selectedDoctor,
                 departmentId: selectedDept,
                 paymentId: payRes.data.payment._id,
-                isOffline: true // IMPORTANT: flag as walk-in insertion offset of 5
+                isOffline: true 
             });
 
             if (bookRes.status !== 201) {
                 throw new Error(bookRes.data?.msg || "Failed to book slot");
             }
 
-            // Fetch doctor & department name for receipt
+            
             const docObj = doctors.find(d => d._id === selectedDoctor);
             const deptObj = departments.find(d => d._id === selectedDept);
 
@@ -182,14 +182,14 @@ function Kiosk() {
             fontFamily: "'Outfit', 'Inter', sans-serif", display: "flex", flexDirection: "column",
             alignItems: "center", justifyItems: "center", padding: "40px 20px", boxSizing: "border-box"
         }}>
-            {/* Header */}
+            {}
             <div style={{ textAlign: "center", marginBottom: "40px" }}>
                 <span style={{ fontSize: "54px" }}>🏥</span>
                 <h1 style={{ margin: "10px 0 4px 0", fontSize: "36px", fontWeight: "800", color: "#1e3a8a" }}>SmartCare Registration Kiosk</h1>
                 <p style={{ margin: 0, fontSize: "16px", color: "#64748b", fontWeight: "500" }}>Self-Service Walk-In Ticket Dispenser</p>
             </div>
 
-            {/* Stepper Bar */}
+            {}
             {step < 4 && (
                 <div style={{ display: "flex", gap: "20px", marginBottom: "40px", width: "100%", maxWidth: "600px", justifyContent: "space-between" }}>
                     {[1, 2, 3].map(s => (
@@ -202,7 +202,7 @@ function Kiosk() {
                 </div>
             )}
 
-            {/* Main Kiosk Card */}
+            {}
             <div style={{
                 backgroundColor: "white", borderRadius: "24px", padding: "40px",
                 boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
@@ -217,7 +217,7 @@ function Kiosk() {
                     </div>
                 )}
 
-                {/* STEP 1: SELECT CLINIC & DOCTOR */}
+                {}
                 {step === 1 && (
                     <div>
                         <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#1e3a8a", margin: "0 0 8px 0" }}>Step 1: Choose Clinic & Doctor</h2>
@@ -302,7 +302,7 @@ function Kiosk() {
                     </div>
                 )}
 
-                {/* STEP 2: PATIENT INFO */}
+                {}
                 {step === 2 && (
                     <div>
                         <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#1e3a8a", margin: "0 0 8px 0" }}>Step 2: Patient Information</h2>
@@ -396,7 +396,7 @@ function Kiosk() {
                     </div>
                 )}
 
-                {/* STEP 3: PAYMENT & CONFIRM */}
+                {}
                 {step === 3 && (
                     <div>
                         <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#1e3a8a", margin: "0 0 8px 0" }}>Step 3: Consultation Payment</h2>
@@ -451,14 +451,14 @@ function Kiosk() {
                     </div>
                 )}
 
-                {/* STEP 4: PRINT RECEIPT / SUCCESS */}
+                {}
                 {step === 4 && bookingResult && (
                     <div style={{ textAlign: "center" }}>
                         <span style={{ fontSize: "54px" }}>🎉</span>
                         <h2 style={{ fontSize: "24px", fontWeight: "800", color: "#10b981", margin: "10px 0 6px 0" }}>Registration Successful!</h2>
                         <p style={{ color: "#64748b", fontSize: "14px", margin: "0 0 30px 0" }}>Your token slip has been generated. Please print or scan the ticket.</p>
 
-                        {/* Printable Ticket Slip */}
+                        {}
                         <div id="print-area" style={{
                             border: "2px dashed #cbd5e1", borderRadius: "16px", padding: "30px",
                             backgroundColor: "#fafafa", maxWidth: "350px", margin: "0 auto 30px auto",
@@ -499,7 +499,7 @@ function Kiosk() {
                             </div>
                         </div>
 
-                        {/* Print slip button */}
+                        {}
                         <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
                             <button
                                 onClick={handlePrint}
@@ -526,7 +526,7 @@ function Kiosk() {
                 )}
             </div>
 
-            {/* Print Styles */}
+            {}
             <style>{`
                 @media print {
                     body * { visibility: hidden; background: white !important; color: black !important; }

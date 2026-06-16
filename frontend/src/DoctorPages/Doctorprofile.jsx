@@ -27,7 +27,7 @@ function ProfileEditor() {
                         name: response.data.d.name || prev.name,
                         phone: response.data.d.phone || prev.phone,
                         email: response.data.d.email || prev.email,
-                        department: response.data.d.departmentId || prev.department
+                        department: response.data.d.departmentId?.name || response.data.d.departmentId || prev.department
                     }));
                 }
             } catch (error) {

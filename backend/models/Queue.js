@@ -78,4 +78,9 @@ const queueSchema = new mongoose.Schema({
     default: null
   }
 });
+
+
+queueSchema.index({ doctorId: 1, date: 1 }, { unique: true });
+queueSchema.index({ departmentId: 1, date: 1 });
+
 module.exports = mongoose.model("Queue", queueSchema);

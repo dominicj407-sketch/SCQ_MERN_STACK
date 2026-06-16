@@ -18,7 +18,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 app.use(passport.initialize());
 
-// ── Google OAuth Strategy ──────────────────────────────────────────────────
+
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -31,7 +31,7 @@ passport.use(new GoogleStrategy({
         if (!user) {
             const hashedPassword = await bcrypt.hash("google_oauth_user", 10);
             
-            // Generate a unique dummy phone number to satisfy the unique phone requirement
+            
             let dummyPhone;
             let isUnique = false;
             while (!isUnique) {
@@ -59,7 +59,7 @@ passport.use(new GoogleStrategy({
     }
 }));
 
-// ── Routes ─────────────────────────────────────────────────────────────────
+
 const route = require('./routes/patientRoutes.js');
 const authRouter = require("./routes/authRoutes.js");
 const adminRouter = require("./routes/adminRoutes.js");
@@ -70,7 +70,7 @@ const { startAutoSkipJob } = require("./jobs/autoSkip.js");
 mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/smartcarequeue")
     .then(() => {
         console.log("✅ MongoDB Connected");
-        startAutoSkipJob(); // Start the 2-minute no-show auto-skip background job
+        startAutoSkipJob(); 
     })
     .catch(err => console.log("❌ MongoDB Error:", err));
 

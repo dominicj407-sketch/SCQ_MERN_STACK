@@ -5,7 +5,7 @@ const { getAnalytics } = require("../controllers/adminController");
 const { auth, authorize } = require("../middlewares/auth");
 const Route = require("express").Router();
 
-// All admin routes require authentication + Admin role
+
 Route.use(auth, authorize("Admin"));
 
 Route.post("/addDept", CreateDept);

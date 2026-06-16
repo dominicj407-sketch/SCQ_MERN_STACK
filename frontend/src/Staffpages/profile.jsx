@@ -19,15 +19,18 @@ function StaffprofileEditor() {
     useEffect(() => {
         const fetchStaffDetails = async () => {
             try {
-                const staffId = localStorage.getItem("staffId") || "122";
-                const response = await API.get(`/staff/getStaffById/${staffId}`);
+                const response = await API.get(`/staff/getStaffById/me`);
                 if (response.data.found) {
+                    const staff = response.data.staff;
+                    if (staff.staffId) {
+                        localStorage.setItem("staffId", staff.staffId);
+                    }
                     setstaffData(prev => ({
                         ...prev,
-                        name: response.data.staff.name || prev.name,
-                        phone: response.data.staff.phone || prev.phone,
-                        email: response.data.staff.email || prev.email,
-                        department: response.data.staff.departmentId || prev.department
+                        name: staff.name || prev.name,
+                        phone: staff.phone || prev.phone,
+                        email: staff.email || prev.email,
+                        department: staff.departmentId?.name || staff.departmentId || prev.department
                     }));
                 }
             } catch (error) {
@@ -41,7 +44,7 @@ function StaffprofileEditor() {
         e.preventDefault();
         setLoading(true);
         try {
-            const staffId = localStorage.getItem("staffId") || "122";
+            const staffId = localStorage.getItem("staffId") || "me";
             
             const response = await API.post(`/staff/updateStaff/${staffId}`, {
                 name: staffData.name,

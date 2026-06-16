@@ -11,7 +11,7 @@ async function getAnalytics(req, res) {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
 
-        // ── 1. Today's Stats ────────────────────────────────────────────
+        
         const todayAppointments = await Appointment.find({
             bookedAt: { $gte: today, $lt: tomorrow }
         });
@@ -22,7 +22,7 @@ async function getAnalytics(req, res) {
         const todayCancelled = todayAppointments.filter(a => a.status === "CANCELLED").length;
         const todaySkipped = todayAppointments.filter(a => a.status === "SKIPPED").length;
 
-        // ── 2. Average Wait Time (completed appointments today) ─────────
+        
         let avgWaitMinutes = 0;
         const completedWithTimes = todayAppointments.filter(
             a => a.status === "COMPLETED" && a.startedAt && a.bookedAt
@@ -34,7 +34,7 @@ async function getAnalytics(req, res) {
             avgWaitMinutes = Math.round(totalWaitMs / completedWithTimes.length / 60000);
         }
 
-        // ── 3. Average Consultation Time ────────────────────────────────
+        
         let avgConsultMinutes = 0;
         const completedWithConsult = todayAppointments.filter(
             a => a.status === "COMPLETED" && a.startedAt && a.completedAt
@@ -46,7 +46,7 @@ async function getAnalytics(req, res) {
             avgConsultMinutes = Math.round(totalConsultMs / completedWithConsult.length / 60000);
         }
 
-        // ── 4. Department-wise Traffic ──────────────────────────────────
+        
         const departments = await Department.find();
         const deptTraffic = [];
         for (const dept of departments) {
@@ -57,7 +57,7 @@ async function getAnalytics(req, res) {
             deptTraffic.push({ name: dept.name, id: dept._id, count });
         }
 
-        // ── 5. 7-Day Revenue Trend ──────────────────────────────────────
+        
         const revenueTrend = [];
         for (let i = 6; i >= 0; i--) {
             const dayStart = new Date(today);
@@ -78,7 +78,7 @@ async function getAnalytics(req, res) {
             });
         }
 
-        // ── 6. 7-Day Patient Traffic Trend ──────────────────────────────
+        
         const trafficTrend = [];
         for (let i = 6; i >= 0; i--) {
             const dayStart = new Date(today);
@@ -96,7 +96,7 @@ async function getAnalytics(req, res) {
             });
         }
 
-        // ── 7. Doctor Performance (today) ───────────────────────────────
+        
         const doctors = await Doctor.find().select("name status departmentId");
         const doctorPerformance = [];
         for (const doc of doctors) {
@@ -118,14 +118,14 @@ async function getAnalytics(req, res) {
             }
         }
 
-        // ── 8. Today's Revenue ──────────────────────────────────────────
+        
         const todayPayments = await Payment.find({
             createdAt: { $gte: today, $lt: tomorrow },
             status: "PAID"
         });
         const todayRevenue = todayPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
-        // ── 9. Total all-time stats ─────────────────────────────────────
+        
         const totalAllTime = await Appointment.countDocuments();
         const totalCompleted = await Appointment.countDocuments({ status: "COMPLETED" });
 

@@ -8,7 +8,7 @@ const razorpay = new Razorpay({
 
 async function createOrder(req, res) {
     const options = {
-        amount: 10000,
+        amount: 500,
         currency: "INR",
         receipt: "receipt_order_1"
     };
@@ -51,7 +51,7 @@ async function getPayment(req, res) {
 
 async function verifyPayment(req, res) {
     try {
-        // In production, verify Razorpay signature here
+        
         res.status(200).json({ success: true, message: "Payment verified successfully" });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });

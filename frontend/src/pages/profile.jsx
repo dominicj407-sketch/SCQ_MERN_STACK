@@ -181,12 +181,14 @@ function PatientProfile() {
                                     className={styles.profileSelect}
                                 >
                                     <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
                                 </select>
                             ) : (
-                                <div className={styles.profileValue}>{patient.gender}</div>
+                                <div className={styles.profileValue}>
+                                    {patient.gender ? patient.gender.charAt(0).toUpperCase() + patient.gender.slice(1) : ''}
+                                </div>
                             )}
                         </div>
 

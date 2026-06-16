@@ -11,6 +11,7 @@ import Patientdashboard from './pages/Patientdashboard.jsx'
 import BookAppointment from './pages/bookappointment.jsx'
 import MyAppointments from './pages/myappointments.jsx'
 import PatientProfile from './pages/profile.jsx'
+import ForgotPassword from './pages/ForgotPassword.jsx'
 
 import Stafflogin from './Staffpages/login.jsx'
 import Staffdash from './Staffpages/dash.jsx'
@@ -32,7 +33,7 @@ createRoot(document.getElementById('root')).render(
    <>
       <BrowserRouter>
          <Routes>
-            {/* Home */}
+            {}
             <Route path='/' element={<Home />} />
 
             {/* Doctor Routes */}
@@ -56,6 +57,7 @@ createRoot(document.getElementById('root')).render(
             <Route path='/patient/appointments' element={<MyAppointments />} />
             <Route path='/patient/book' element={<BookAppointment />} />
             <Route path='/patient/profile' element={<PatientProfile />} />
+            <Route path='/forgot-password' element={<ForgotPassword />} />
 
             {/* Admin Routes */}
             <Route path='/admin/login' element={<AdminLogin />} />

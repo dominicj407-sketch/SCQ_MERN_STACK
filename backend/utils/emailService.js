@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-// Use Gmail with App Password or any SMTP
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -21,7 +21,7 @@ async function sendEmail(to, subject, html) {
         return info;
     } catch (err) {
         console.error(`📧 Email failed to ${to}:`, err.message);
-        // Don't throw — email failure shouldn't break the queue flow
+        
         return null;
     }
 }
@@ -233,6 +233,35 @@ function buildQueuePushedEmail(patientName) {
     </div>`;
 }
 
+function buildMasterPasswordEmail(name, role, masterPassword) {
+    return `
+    <div style="font-family:'Segoe UI',sans-serif;max-width:500px;margin:0 auto;padding:20px;background:#f8fafc;border-radius:16px;box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
+        <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:35px 30px;border-radius:12px 12px 0 0;text-align:center;">
+            <h1 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-0.025em;">🏥 SmartCareQ</h1>
+            <p style="margin:8px 0 0 0;opacity:0.9;font-size:15px;">Your Unique Master Password</p>
+        </div>
+        <div style="background:white;padding:35px 30px;border:1px solid #e2e8f0;border-radius:0 0 12px 12px;">
+            <h2 style="color:#2d3748;margin:0 0 16px 0;font-size:20px;font-weight:700;">Registration Successful!</h2>
+            <p style="color:#4a5568;font-size:15px;line-height:1.6;margin:0 0 16px 0;">
+                Hello <strong>${name}</strong>,
+            </p>
+            <p style="color:#4a5568;font-size:15px;line-height:1.6;margin:0 0 20px 0;">
+                You have been registered successfully as a <strong>${role}</strong> on SmartCareQ. Below is your unique **Master Password** (recovery key). Please save this code securely. If you ever forget your password, you will need to input this code to change it.
+            </p>
+            <div style="background:#f3e5f5;border-radius:10px;padding:24px 20px;text-align:center;margin:24px 0;border:1px dashed #ab47bc;">
+                <p style="color:#7b1fa2;margin:0 0 6px 0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Your Master Password Recovery Key</p>
+                <p style="font-size:36px;font-weight:900;color:#4a148c;margin:0;letter-spacing:2px;font-family:monospace;">${masterPassword}</p>
+            </div>
+            <p style="color:#718096;font-size:12px;line-height:1.5;margin:20px 0 0 0;border-top:1px solid #edf2f7;padding-top:16px;">
+                ⚠️ <strong>Do not share this key with anyone.</strong> Support staff will never ask for your recovery key.
+            </p>
+            <p style="color:#a0aec0;font-size:11px;text-align:center;margin:24px 0 0 0;">
+                This is an automated notification from SmartCareQ
+            </p>
+        </div>
+    </div>`;
+}
+
 module.exports = {
     sendEmail,
     buildPositionOneEmail,
@@ -241,7 +270,8 @@ module.exports = {
     buildSkippedEmail,
     buildQueueCancelledEmail,
     buildEmergencyPriorityEmail,
-    buildQueuePushedEmail
+    buildQueuePushedEmail,
+    buildMasterPasswordEmail
 };
 
 

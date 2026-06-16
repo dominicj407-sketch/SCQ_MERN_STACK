@@ -58,6 +58,9 @@ const staffSchema = new mongoose.Schema({
     type: String,
     default:"staff"
   },
+  masterPassword: {
+    type: String
+  },
 
   active: {
     type: Boolean,
@@ -67,6 +70,30 @@ const staffSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
   }
 });
+
+
+staffSchema.pre(/^find/, function () {
+  const query = this.getQuery();
+  if (query.isDeleted === undefined) {
+    this.where({ isDeleted: { $ne: true } });
+  }
+});
+
+
+staffSchema.post("findOneAndUpdate", async function (doc) {
+  if (doc && doc.isDeleted) {
+    const StaffAssignment = mongoose.model("StaffAssignment");
+    await StaffAssignment.updateMany(
+      { staffId: doc._id, active: true },
+      { active: false }
+    );
+  }
+});
+
 module.exports = mongoose.model("Staff", staffSchema);

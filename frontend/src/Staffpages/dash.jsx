@@ -16,7 +16,7 @@ function Staffdash() {
     let [queues, setQueues] = useState([]);
     let [showScanner, setShowScanner] = useState(false);
 
-    // Staff Walk-in Form State
+    
     const [showWalkinModal, setShowWalkinModal] = useState(false);
     const [walkinName, setWalkinName] = useState("");
     const [walkinPhone, setWalkinPhone] = useState("");
@@ -28,16 +28,14 @@ function Staffdash() {
     const [walkinError, setWalkinError] = useState("");
     const [walkinSuccess, setWalkinSuccess] = useState(null);
 
-    // QR scan result
+    
     let [scanResult, setScanResult] = useState(null);
     let [scanMessage, setScanMessage] = useState("");
 
-    // No-show tracking
-    let [noShowData, setNoShowData] = useState({});  // queueId -> { elapsed, timedOut }
-    let [showNoShowModal, setShowNoShowModal] = useState(false);
-    let [noShowQueueId, setNoShowQueueId] = useState(null);
+    
+    let [noShowData, setNoShowData] = useState({});  
 
-    // ── Fetch Staff Profile ────────────────────────────────────────────────
+    
     async function fetchstaff() {
         try {
             let res = await API.get("/staff/getStaffById/me");
@@ -47,14 +45,14 @@ function Staffdash() {
         }
     }
 
-    // ── Fetch Assigned Queues ──────────────────────────────────────────────
+    
     async function fetchQueues() {
         try {
             let res = await API.get("/staff/getAssignedQueues/me");
             setQueues(res.data.queues || []);
         } catch (err) {
             if (err.response?.status === 404) {
-                // No queues assigned for today - expected case
+                
                 setQueues([]);
             } else {
                 console.error("Error fetching queues:", err);
@@ -62,13 +60,13 @@ function Staffdash() {
         }
     }
 
-    // ── QR Scanner ─────────────────────────────────────────────────────────
+    
     function scan() {
         const scanner = new Html5QrcodeScanner("reader", {
             fps: 10,
             qrbox: { width: 500, height: 350 }
         });
-        scanner.render(onScanSuccess, () => {});
+        scanner.render(onScanSuccess, () => { });
 
         function onScanSuccess(decodedText) {
             scanner.clear();
@@ -84,7 +82,7 @@ function Staffdash() {
         return () => scanner.clear();
     }
 
-    // ── Handle QR Scan → Verify & Admit ────────────────────────────────────
+    
     async function handleQRScan(data) {
         const appointmentId = data.appointmentId;
         if (!appointmentId) {
@@ -92,7 +90,7 @@ function Staffdash() {
             return;
         }
 
-        // Find the right queueId from our assigned queues
+        
         let queueId = null;
         for (const q of queues) {
             const qId = q.queueId?._id;
@@ -103,13 +101,13 @@ function Staffdash() {
         }
 
         if (!queueId) {
-            // Try getting it from the appointment
+            
             try {
                 const appRes = await API.get(`/patients/getAppointment/${appointmentId}`);
                 if (appRes.data.found) {
                     queueId = appRes.data.appointment.queueId;
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         if (!queueId) {
@@ -119,7 +117,7 @@ function Staffdash() {
 
         try {
             const res = await API.post("/staff/verifyAndAdmit", { queueId, appointmentId });
-            
+
             if (res.data.rejoined) {
                 setScanResult({
                     type: "rejoined",
@@ -133,14 +131,12 @@ function Staffdash() {
                     name: res.data.patientName
                 });
                 setScanMessage(`✅ ${res.data.patientName} checked in! Sent to doctor.`);
-                // Clear no-show state for this queue
+                
                 setNoShowData(prev => {
                     const next = { ...prev };
                     delete next[queueId];
                     return next;
                 });
-                setShowNoShowModal(false);
-                setNoShowQueueId(null);
             }
 
             fetchQueues();
@@ -162,7 +158,7 @@ function Staffdash() {
         }
     }, [showScanner]);
 
-    // ── No-Show Polling (every 3 seconds) ──────────────────────────────────
+    
     useEffect(() => {
         if (!queues || queues.length === 0) return;
 
@@ -179,53 +175,19 @@ function Staffdash() {
                             ...prev,
                             [qId]: { elapsed: data.elapsed, timedOut: data.timedOut }
                         }));
-
-                        if (data.timedOut && !showNoShowModal) {
-                            setNoShowQueueId(qId);
-                            setShowNoShowModal(true);
-                        }
                     } else {
                         setNoShowData(prev => {
                             const next = { ...prev };
                             delete next[qId];
                             return next;
                         });
-                        if (noShowQueueId === qId) {
-                            setShowNoShowModal(false);
-                            setNoShowQueueId(null);
-                        }
                     }
-                } catch (e) {}
+                } catch (e) { }
             }
         }, 3000);
 
         return () => clearInterval(pollInterval);
-    }, [queues, showNoShowModal, noShowQueueId]);
-
-    // ── Skip Patient (No-Show) ─────────────────────────────────────────────
-    async function skipPatient(queueId) {
-        try {
-            let res = await API.post("/staff/skipCurrentWaiting", { queueId });
-            if (res.data.found) {
-                setScanMessage("⏭️ Patient skipped due to no-show. Next patient notified.");
-                setShowNoShowModal(false);
-                setNoShowQueueId(null);
-                setNoShowData(prev => {
-                    const next = { ...prev };
-                    delete next[queueId];
-                    return next;
-                });
-                fetchQueues();
-            }
-        } catch (err) {
-            alert("Error skipping patient: " + (err.response?.data?.msg || err.message));
-        }
-    }
-
-    function giveMoreTime() {
-        setShowNoShowModal(false);
-        // Timer continues server-side, modal will reappear
-    }
+    }, [queues]);
 
     async function handleWalkinRegister() {
         if (!walkinName || !walkinPhone || !walkinAge || !walkinGender || !walkinQueueId) {
@@ -237,7 +199,7 @@ function Staffdash() {
         setWalkinError("");
 
         try {
-            // Find the queue to get doctorId and departmentId
+            
             const qObj = queues.find(q => q.queueId?._id === walkinQueueId);
             if (!qObj) {
                 throw new Error("Selected queue not found in assigned list");
@@ -246,9 +208,9 @@ function Staffdash() {
             const doctorId = qObj.doctorId?._id;
             const departmentId = qObj.queueId?.departmentId?._id || qObj.queueId?.departmentId;
 
-            // 1. Create client payment (Staff mark as PAID directly)
+            
             const payRes = await API.post("/patients/payment", {
-                patientId: "65bce0fc0a5687744b90b460", // dummy placeholder patient
+                patientId: "65bce0fc0a5687744b90b460", 
                 amount: 500,
                 method: walkinPayMethod
             });
@@ -257,7 +219,7 @@ function Staffdash() {
                 throw new Error("Payment record creation failed");
             }
 
-            // 2. Register new walk-in patient in database
+            
             const walkinEmail = `staff_walkin_${Date.now()}@smartcareq.com`;
             const regRes = await API.post("/patients/registerPatient", {
                 name: walkinName,
@@ -274,7 +236,7 @@ function Staffdash() {
 
             const patientId = regRes.data.patientId;
 
-            // 3. Book appointment with offline flag and target payment
+            
             const bookRes = await API.post("/patients/bookAppointment", {
                 patientId,
                 doctorId,
@@ -287,14 +249,14 @@ function Staffdash() {
                 throw new Error(bookRes.data?.msg || "Failed to book queue slot");
             }
 
-            // Set success info
+            
             setWalkinSuccess({
                 tokenNumber: bookRes.data.tokenNumber,
                 doctorName: qObj.doctorId?.name,
                 qrCode: bookRes.data.qrCode
             });
 
-            // Re-fetch queues to update live counts
+            
             fetchQueues();
         } catch (err) {
             console.error("Staff walkin error:", err);
@@ -320,8 +282,7 @@ function Staffdash() {
         return () => clearInterval(interval);
     }, []);
 
-    // ── Get active timer for display ───────────────────────────────────────
-    const activeTimer = Object.entries(noShowData).find(([_, v]) => v.elapsed > 0);
+
 
     return (
         <div className={styles.container}>
@@ -333,7 +294,7 @@ function Staffdash() {
 
             <h2 className={styles.welcomeText}>Hello: {sname}</h2>
 
-            {/* Queue Summary Card */}
+            {}
             {queues.length > 0 && (() => {
                 const totalWaiting = queues.reduce((s, q) => s + (q.queueId?.waiting?.length || 0), 0);
                 const totalSkipped = queues.reduce((s, q) => s + (q.queueId?.skipped?.length || 0), 0);
@@ -377,7 +338,7 @@ function Staffdash() {
                 );
             })()}
 
-            {/* Assigned Queues Detail */}
+            {}
             <div style={{ marginBottom: '20px' }}>
                 <h3>📋 Assigned Queues:</h3>
                 {queues.length > 0 ? (
@@ -401,13 +362,13 @@ function Staffdash() {
                                 </div>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', fontSize: '14px', marginBottom: '10px' }}>
-                                    <div><strong style={{color:'#94a3b8'}}>Capacity:</strong> {q.queueId?.maxCapacity || 0}</div>
-                                    <div><strong style={{color:'#94a3b8'}}>Booked:</strong> {q.queueId?.bookedAppointments || 0}</div>
-                                    <div style={{ color: '#38bdf8' }}><strong style={{color:'#94a3b8'}}>Waiting:</strong> {q.queueId?.waiting?.length || 0}</div>
-                                    <div style={{ color: '#34d399' }}><strong style={{color:'#94a3b8'}}>Done:</strong> {q.completedCount || 0}</div>
+                                    <div><strong style={{ color: '#94a3b8' }}>Capacity:</strong> {q.queueId?.maxCapacity || 0}</div>
+                                    <div><strong style={{ color: '#94a3b8' }}>Booked:</strong> {q.queueId?.bookedAppointments || 0}</div>
+                                    <div style={{ color: '#38bdf8' }}><strong style={{ color: '#94a3b8' }}>Waiting:</strong> {q.queueId?.waiting?.length || 0}</div>
+                                    <div style={{ color: '#34d399' }}><strong style={{ color: '#94a3b8' }}>Done:</strong> {q.completedCount || 0}</div>
                                 </div>
 
-                                {/* Current patient info */}
+                                {}
                                 {q.queueId?.currentPatient && (
                                     <div style={{ marginTop: '8px', padding: '10px 14px', background: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.2)', color: '#34d399', borderRadius: '8px', fontWeight: '600' }}>
                                         🩺 <strong>In-Room:</strong> {q.queueId.currentPatient.patientId?.name || 'Unknown'}
@@ -415,7 +376,7 @@ function Staffdash() {
                                     </div>
                                 )}
 
-                                {/* Waiting patients list */}
+                                {}
                                 {q.queueId?.waiting?.length > 0 && (
                                     <div style={{ marginTop: '8px', fontSize: '13px', color: '#cbd5e1', padding: '10px', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '8px' }}>
                                         <strong>Queue Order:</strong>{' '}
@@ -429,7 +390,7 @@ function Staffdash() {
                                     </div>
                                 )}
 
-                                {/* Skipped patients */}
+                                {}
                                 {q.queueId?.skipped?.length > 0 && (
                                     <div style={{ marginTop: '8px', fontSize: '13px', color: '#fb923c', padding: '10px', background: 'rgba(249, 115, 22, 0.08)', border: '1px solid rgba(249, 115, 22, 0.18)', borderRadius: '8px' }}>
                                         <strong>Skipped:</strong>{' '}
@@ -450,22 +411,27 @@ function Staffdash() {
                 )}
             </div>
 
-            {/* Active Timer Banner */}
-            {activeTimer && !showNoShowModal && (
-                <div style={{
-                    background: activeTimer[1].elapsed >= 90 ? '#ffebee' : '#fff3cd',
-                    padding: '14px', marginBottom: '16px', borderRadius: '8px',
-                    border: `2px solid ${activeTimer[1].elapsed >= 90 ? '#f44336' : '#ffc107'}`
-                }}>
-                    <p style={{ margin: 0, fontWeight: 'bold', color: activeTimer[1].elapsed >= 90 ? '#c62828' : '#856404' }}>
-                        ⏳ Waiting for patient QR scan — {formatTime(activeTimer[1].elapsed)} elapsed
-                        {activeTimer[1].elapsed < 120 && ` (no-show alert in ${formatTime(120 - activeTimer[1].elapsed)})`}
-                        {activeTimer[1].elapsed >= 120 && " — ⚠️ TIMED OUT!"}
-                    </p>
-                </div>
-            )}
+            {}
+            {Object.entries(noShowData).map(([qId, timer]) => {
+                if (timer.elapsed <= 0) return null;
+                const qObj = queues.find(q => q.queueId?._id === qId);
+                const docName = qObj?.doctorId?.name ? `Dr. ${qObj.doctorId.name}` : "Clinic";
+                return (
+                    <div key={qId} style={{
+                        background: timer.elapsed >= 90 ? '#ffebee' : '#fff3cd',
+                        padding: '14px', marginBottom: '16px', borderRadius: '8px',
+                        border: `2px solid ${timer.elapsed >= 90 ? '#f44336' : '#ffc107'}`
+                    }}>
+                        <p style={{ margin: 0, fontWeight: 'bold', color: timer.elapsed >= 90 ? '#c62828' : '#856404' }}>
+                            🩺 {docName} — ⏳ Waiting for patient QR scan — {formatTime(timer.elapsed)} elapsed
+                            {timer.elapsed < 120 && ` (auto-skip in ${formatTime(120 - timer.elapsed)})`}
+                            {timer.elapsed >= 120 && " — ⚠️ TIMED OUT!"}
+                        </p>
+                    </div>
+                );
+            })}
 
-            {/* Scan Result Message */}
+            {}
             {scanMessage && (
                 <div style={{
                     background: scanMessage.startsWith('✅') ? '#e8f5e9' : scanMessage.startsWith('🔄') ? '#e3f2fd' : scanMessage.startsWith('⏭️') ? '#fff3e0' : '#ffebee',
@@ -480,7 +446,7 @@ function Staffdash() {
                 </div>
             )}
 
-            {/* QR Scanner Toggle */}
+            {}
             <button
                 type="button"
                 onClick={() => { setShowScanner(!showScanner); setScanMessage(""); }}
@@ -493,7 +459,7 @@ function Staffdash() {
                 {showScanner ? "📷 Close Scanner" : "📷 Scan Patient QR"}
             </button>
 
-            {/* Walk-in Registration Button */}
+            {}
             <button
                 type="button"
                 onClick={() => { setShowWalkinModal(true); setWalkinError(""); setWalkinSuccess(null); }}
@@ -506,7 +472,7 @@ function Staffdash() {
                 ➕ Register Walk-in Patient
             </button>
 
-            {/* Walk-in Modal */}
+            {}
             {showWalkinModal && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
@@ -523,28 +489,28 @@ function Staffdash() {
                             style={{ position: 'absolute', right: '20px', top: '20px', background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '24px' }}>
                             ✕
                         </button>
-                        
+
                         {!walkinSuccess ? (
                             <div>
                                 <h2 style={{ margin: '0 0 16px 0', color: '#ffffff' }}>➕ Register Walk-in Patient</h2>
-                                
+
                                 {walkinError && (
                                     <div style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f43f5e', borderRadius: '8px', marginBottom: '16px', fontWeight: 'bold' }}>
                                         ⚠️ {walkinError}
                                     </div>
                                 )}
-                                
+
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', color: '#94a3b8' }}>Patient Full Name</label>
                                         <input type="text" value={walkinName} onChange={e => setWalkinName(e.target.value)} placeholder="Full Name" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: 'rgba(15, 23, 42, 0.6)', color: '#f8fafc', boxSizing: 'border-box' }} />
                                     </div>
-                                    
+
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', color: '#94a3b8' }}>Phone Number</label>
                                         <input type="tel" value={walkinPhone} onChange={e => setWalkinPhone(e.target.value)} placeholder="10-digit Phone" style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: 'rgba(15, 23, 42, 0.6)', color: '#f8fafc', boxSizing: 'border-box' }} />
                                     </div>
- 
+
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                         <div>
                                             <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', color: '#94a3b8' }}>Age</label>
@@ -560,7 +526,7 @@ function Staffdash() {
                                             </select>
                                         </div>
                                     </div>
- 
+
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', color: '#94a3b8' }}>Select Queue / Doctor</label>
                                         <select value={walkinQueueId} onChange={e => setWalkinQueueId(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: 'rgba(15, 23, 42, 0.6)', color: '#f8fafc', boxSizing: 'border-box' }}>
@@ -572,7 +538,7 @@ function Staffdash() {
                                             ))}
                                         </select>
                                     </div>
- 
+
                                     <div>
                                         <label style={{ display: 'block', fontSize: '13px', fontWeight: 'bold', marginBottom: '4px', color: '#94a3b8' }}>Payment Method</label>
                                         <select value={walkinPayMethod} onChange={e => setWalkinPayMethod(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid rgba(255, 255, 255, 0.1)', backgroundColor: 'rgba(15, 23, 42, 0.6)', color: '#f8fafc', boxSizing: 'border-box' }}>
@@ -585,7 +551,7 @@ function Staffdash() {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
                                     <button onClick={() => setShowWalkinModal(false)}
                                         style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.1)', color: '#cbd5e1', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
@@ -607,7 +573,7 @@ function Staffdash() {
                                 <p style={{ fontSize: '14px', color: '#cbd5e1', marginBottom: '20px' }}>
                                     Patient has been added to Dr. {walkinSuccess.doctorName}'s queue.
                                 </p>
-                                
+
                                 <div style={{ border: '2px dashed rgba(13, 213, 195, 0.3)', padding: '20px', borderRadius: '8px', background: 'rgba(13, 213, 195, 0.05)', display: 'inline-block', minWidth: '220px', marginBottom: '20px' }}>
                                     <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 'bold', textTransform: 'uppercase' }}>Token Number</span>
                                     <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#0dd5c3', margin: '4px 0' }}>
@@ -615,14 +581,14 @@ function Staffdash() {
                                     </div>
                                     <span style={{ fontSize: '11px', color: '#94a3b8' }}>Offline Walk-In Slip</span>
                                 </div>
-                                
+
                                 {walkinSuccess.qrCode && (
                                     <div style={{ margin: "20px 0" }}>
                                         <img src={walkinSuccess.qrCode} alt="Walk-In Patient QR" style={{ width: "160px", height: "160px", border: "1px solid rgba(255,255,255,0.1)", padding: "8px", borderRadius: "8px", background: "#ffffff" }} />
                                         <p style={{ fontSize: "11px", color: "#94a3b8", marginTop: "8px", marginBottom: 0 }}>Scan this QR code to check in or enter the queue.</p>
                                     </div>
                                 )}
-                                
+
                                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                                     <button onClick={() => {
                                         setWalkinName(""); setWalkinPhone(""); setWalkinAge(""); setWalkinGender(""); setWalkinQueueId(""); setWalkinSuccess(null);
@@ -639,57 +605,10 @@ function Staffdash() {
                     </div>
                 </div>
             )}
- 
+
             {showScanner && <div id="reader" style={{ width: '50ch', height: '45vh', marginBottom: '20px' }}></div>}
- 
-            {/* No-Show Modal */}
-            {showNoShowModal && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    backgroundColor: 'rgba(3, 7, 18, 0.6)', backdropFilter: 'blur(6px)', zIndex: 9999,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                    <div style={{
-                        background: '#0f172a', borderRadius: '12px', padding: '32px',
-                        maxWidth: '420px', width: '90%', textAlign: 'center',
-                        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', border: '1px solid rgba(13, 213, 195, 0.2)'
-                    }}>
-                        <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚠️</div>
-                        <h2 style={{ margin: '0 0 12px 0', color: '#f43f5e' }}>Patient No-Show!</h2>
-                        <p style={{ fontSize: '16px', color: '#cbd5e1', margin: '0 0 8px 0' }}>
-                            The next patient has <strong>not arrived</strong> within <strong>2 minutes</strong>.
-                        </p>
-                        <p style={{ fontSize: '14px', color: '#94a3b8', margin: '0 0 24px 0' }}>
-                            Time elapsed: <strong>{noShowData[noShowQueueId] ? formatTime(noShowData[noShowQueueId].elapsed) : "2:00+"}</strong>
-                        </p>
-                        <p style={{ fontSize: '15px', fontWeight: 'bold', marginBottom: '24px', color: '#cbd5e1' }}>
-                            Skip this patient to the Skipped Queue?
-                        </p>
-                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                            <button
-                                onClick={() => skipPatient(noShowQueueId)}
-                                style={{
-                                    padding: '12px 24px', backgroundColor: '#e74c3c',
-                                    color: 'white', border: 'none', borderRadius: '8px',
-                                    fontSize: '15px', fontWeight: 'bold', cursor: 'pointer'
-                                }}
-                            >
-                                ✅ Yes, Skip
-                            </button>
-                            <button
-                                onClick={giveMoreTime}
-                                style={{
-                                    padding: '12px 24px', backgroundColor: '#607d8b',
-                                    color: 'white', border: 'none', borderRadius: '8px',
-                                    fontSize: '15px', fontWeight: 'bold', cursor: 'pointer'
-                                }}
-                            >
-                                ❌ Give More Time
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+
+
         </div>
     );
 }

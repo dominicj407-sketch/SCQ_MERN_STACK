@@ -6,10 +6,10 @@ const Payment = require("../models/Payment.js");
 const QRCode = require("qrcode");
 const bcrypt = require("bcryptjs");
 const { updateQueueExpectedTimes } = require("./queueController.js");
-const { sendEmail, buildBookingEmail, buildPositionOneEmail, buildSkippedEmail } = require("../utils/emailService.js");
+const { sendEmail, buildBookingEmail, buildPositionOneEmail, buildSkippedEmail, buildMasterPasswordEmail } = require("../utils/emailService.js");
 
 
-// ── Register Patient (with bcrypt) ─────────────────────────────────────────
+
 async function registerPatient(req, res) {
     try {
         const { name, phone, email, password, age, gender } = req.body;
@@ -18,19 +18,35 @@ async function registerPatient(req, res) {
             return res.status(409).json({ msg: "Already registered", found: false });
 
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        
+        const crypto = require("crypto");
+        const masterPasswordText = 'MP-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+        const hashedMasterPassword = await bcrypt.hash(masterPasswordText, 10);
+
         const patient = new Patient({
             name, phone, email,
             password: hashedPassword,
+            masterPassword: hashedMasterPassword,
             age, gender
         });
         await patient.save();
+
+        
+        try {
+            const emailHtml = buildMasterPasswordEmail(name, "Patient", masterPasswordText);
+            await sendEmail(email, "🔑 SmartCareQ: Your Recovery Master Password", emailHtml);
+        } catch (mailErr) {
+            console.error("Failed to send master password email to patient:", mailErr.message);
+        }
+
         res.json({ msg: "Registered successfully", patientId: patient._id, found: true });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 }
 
-// ── Get All Patients ───────────────────────────────────────────────────────
+
 async function getPatients(req, res) {
     try {
         const patients = await Patient.find().select("-password");
@@ -40,7 +56,7 @@ async function getPatients(req, res) {
     }
 }
 
-// ── Get Patient by ID (from JWT) ───────────────────────────────────────────
+
 async function getPatientById(req, res) {
     try {
         const id = req.user.id;
@@ -53,7 +69,7 @@ async function getPatientById(req, res) {
     }
 }
 
-// ── Update Patient ─────────────────────────────────────────────────────────
+
 async function updatePatient(req, res) {
     try {
         const id = req.params.id;
@@ -66,11 +82,11 @@ async function updatePatient(req, res) {
     }
 }
 
-// ── Delete Patient ─────────────────────────────────────────────────────────
+
 async function deletePatient(req, res) {
     try {
         const id = req.params.id;
-        const patient = await Patient.findByIdAndDelete(id);
+        const patient = await Patient.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
         if (!patient)
             return res.status(404).json({ message: "Patient not found", found: false });
         res.json({ message: "Patient deleted successfully", deletedPatient: patient, found: true });
@@ -79,12 +95,12 @@ async function deletePatient(req, res) {
     }
 }
 
-// ── Validate Booking Before Payment ────────────────────────────────────────
+
 async function validateBooking(req, res) {
     try {
         const { patientId, doctorId } = req.body;
 
-        // 1. Doctor must be available
+        
         const doctor = await Doctor.findById(doctorId);
         if (!doctor) {
             return res.status(404).json({ msg: "Doctor not found.", found: false });
@@ -93,7 +109,7 @@ async function validateBooking(req, res) {
             return res.status(400).json({ msg: `Doctor is currently ${doctor.status}. Booking is only allowed when the doctor is available.`, found: false });
         }
 
-        // 2. One-active-booking-per-day constraint
+        
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
         const endOfDay = new Date();
@@ -111,7 +127,7 @@ async function validateBooking(req, res) {
             });
         }
 
-        // 3. Queue & Capacity Constraints
+        
         const today = new Date().toISOString().split("T")[0];
         const queue = await Queue.findOne({ doctorId, date: today });
         if (!queue) {
@@ -131,12 +147,12 @@ async function validateBooking(req, res) {
     }
 }
 
-// ── Book Appointment ───────────────────────────────────────────────────────
+
 async function bookAppointment(req, res) {
     try {
         const { patientId, doctorId, departmentId, paymentId, reports, isOffline } = req.body;
 
-        // 0. Doctor must be available
+        
         const doctor = await Doctor.findById(doctorId);
         if (!doctor) {
             return res.status(404).json({ msg: "Doctor not found", found: false });
@@ -145,7 +161,7 @@ async function bookAppointment(req, res) {
             return res.status(400).json({ msg: `Doctor is currently ${doctor.status}. Cannot book when doctor is not available.`, found: false });
         }
 
-        // 1. One-active-booking-per-day constraint
+        
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
         const endOfDay = new Date();
@@ -215,7 +231,7 @@ async function bookAppointment(req, res) {
 
         const patient = await Patient.findById(patientId);
 
-        // Send Booking Confirmation Email
+        
         if (patient && patient.email) {
             const html = buildBookingEmail(patient.name, doctor.name, tokenNumber, today);
             await sendEmail(
@@ -225,11 +241,11 @@ async function bookAppointment(req, res) {
             );
         }
 
-        // If this is the first patient and no one is being served, start the timer
+        
         if (queue.waiting.length === 1 && !queue.currentPatient && !queue.waitingSince) {
             queue.waitingSince = new Date();
             if (patient && patient.email) {
-                // Notify first patient via Email
+                
                 const html = buildPositionOneEmail(patient.name, doctor.name, tokenNumber);
                 await sendEmail(
                     patient.email,
@@ -254,7 +270,7 @@ async function bookAppointment(req, res) {
     }
 }
 
-// ── Remove Appointment ─────────────────────────────────────────────────────
+
 async function removeAppointment(req, res) {
     try {
         const appointmentId = req.params.appId;
@@ -262,18 +278,14 @@ async function removeAppointment(req, res) {
         if (!app)
             return res.status(404).json({ err: "Appointment not found", found: false });
 
-        const queueId = app.queueId;
         const payment = await Payment.findById(app.paymentId);
         if (payment) {
             payment.status = "REFUNDED";
             await payment.save();
         }
 
-        await Queue.updateOne({ _id: queueId }, { $pull: { waiting: appointmentId } });
         app.status = "CANCELLED";
         await app.save();
-        await Queue.updateOne({ _id: queueId }, { $inc: { bookedAppointments: -1 } });
-        await updateQueueExpectedTimes(queueId);
 
         res.json({ msg: "Deleted successfully", appId: app._id, found: true });
     } catch (err) {
@@ -281,7 +293,7 @@ async function removeAppointment(req, res) {
     }
 }
 
-// ── Get Position ───────────────────────────────────────────────────────────
+
 async function getPosition(req, res) {
     try {
         const appId = req.params.appId;
@@ -316,7 +328,7 @@ async function getPosition(req, res) {
     }
 }
 
-// ── Get QR Code ────────────────────────────────────────────────────────────
+
 async function getQrCode(req, res) {
     try {
         const appId = req.params.appId;
@@ -331,7 +343,7 @@ async function getQrCode(req, res) {
     }
 }
 
-// ── Reports ────────────────────────────────────────────────────────────────
+
 async function addRecord(req, res) {
     try {
         const { pId, fileUrl } = req.body;
@@ -374,7 +386,7 @@ async function getReports(req, res) {
     }
 }
 
-// ── Bookings & History ─────────────────────────────────────────────────────
+
 async function getBookings(req, res) {
     try {
         const pId = req.params.pId;
@@ -406,7 +418,7 @@ async function getPatientHistory(req, res) {
 
 
 
-// ── Live Queue Status ──────────────────────────────────────────────────────
+
 async function getLiveQueue(req, res) {
     try {
         const doctorId = req.params.doctorId;
@@ -418,17 +430,17 @@ async function getLiveQueue(req, res) {
         const waitingCount = q.waiting.length;
         const skippedCount = q.skipped.length;
 
-        // Calculate avg consultation time from completed appointments today
+        
         const completedApps = await Appointment.find({
             doctorId, queueId: q._id, status: "COMPLETED",
             startedAt: { $ne: null }, completedAt: { $ne: null }
         });
 
-        let avgConsultTime = 10; // default 10 min
+        let avgConsultTime = 10; 
         if (completedApps.length > 0) {
             const totalMins = completedApps.reduce((sum, app) => {
                 const duration = (new Date(app.completedAt) - new Date(app.startedAt)) / 60000;
-                return sum + Math.max(1, Math.min(duration, 60)); // clamp 1-60 min
+                return sum + Math.max(1, Math.min(duration, 60)); 
             }, 0);
             avgConsultTime = Math.round(totalMins / completedApps.length);
         }
@@ -436,23 +448,23 @@ async function getLiveQueue(req, res) {
         let estimatedWait = 0;
         if (waitingCount > 0) {
             const now = Date.now();
-            let baseRemainingTime = 0; // in minutes
+            let baseRemainingTime = 0; 
 
             if (q.currentPatient) {
-                // State A: current patient is inside the doctor's room
+                
                 const currentApp = await Appointment.findById(q.currentPatient);
                 if (currentApp && currentApp.startedAt) {
-                    const elapsedTime = (now - new Date(currentApp.startedAt).getTime()) / 60000; // minutes
+                    const elapsedTime = (now - new Date(currentApp.startedAt).getTime()) / 60000; 
                     baseRemainingTime = Math.max(0, avgConsultTime - elapsedTime);
                 } else {
                     baseRemainingTime = avgConsultTime;
                 }
             } else {
-                // State B: no patient is inside the doctor's room
-                let remainingArrivalDeadline = 2; // 2 minutes by default
+                
+                let remainingArrivalDeadline = 2; 
                 if (q.waitingSince) {
                     const elapsedSeconds = (now - new Date(q.waitingSince).getTime()) / 1000;
-                    remainingArrivalDeadline = Math.max(0, 120 - elapsedSeconds) / 60; // convert to minutes
+                    remainingArrivalDeadline = Math.max(0, 120 - elapsedSeconds) / 60; 
                 }
                 baseRemainingTime = remainingArrivalDeadline;
             }
@@ -475,7 +487,7 @@ async function getLiveQueue(req, res) {
     }
 }
 
-// ── Rejoin Queue (from skipped) ────────────────────────────────────────────
+
 async function rejoinQueue(req, res) {
     try {
         const mongoose = require("mongoose");
@@ -495,12 +507,12 @@ async function rejoinQueue(req, res) {
         if (!app)
             return res.status(404).json({ msg: "Appointment not found", found: false });
 
-        // Rejoin at TOP of waiting queue
+        
         q.waiting.unshift(removed);
         app.status = "WAITING";
         await app.save();
 
-        // Start timer if no current patient
+        
         if (!q.currentPatient) {
             q.waitingSince = new Date();
         }
@@ -517,7 +529,7 @@ async function rejoinQueue(req, res) {
     }
 }
 
-// ── Next Patient ───────────────────────────────────────────────────────────
+
 async function nextPatient(req, res) {
     try {
         const queueId = req.params.queueId;
@@ -555,7 +567,7 @@ async function nextPatient(req, res) {
     }
 }
 
-// ── Skip Appointment ───────────────────────────────────────────────────────
+
 async function skipAppointment(req, res) {
     try {
         const mongoose = require("mongoose");
@@ -576,7 +588,7 @@ async function skipAppointment(req, res) {
             a.status = "SKIPPED";
             await a.save();
 
-            // Send Skipped Email
+            
             const patient = await Patient.findById(a.patientId);
             if (patient && patient.email) {
                 const doctor = await Doctor.findById(q.doctorId);
@@ -603,7 +615,7 @@ async function skipAppointment(req, res) {
     }
 }
 
-// ── Get Appointments by Patient ────────────────────────────────────────────
+
 async function getAppointmentsByPatient(req, res) {
     try {
         const patientId = req.user.id;
@@ -616,7 +628,7 @@ async function getAppointmentsByPatient(req, res) {
     }
 }
 
-// ── Get Single Appointment ─────────────────────────────────────────────────
+
 async function getAppointment(req, res) {
     try {
         const appId = req.params.appointmentId;
@@ -631,7 +643,7 @@ async function getAppointment(req, res) {
     }
 }
 
-// ── Get Appointment QR ─────────────────────────────────────────────────────
+
 async function getAppointmentQR(req, res) {
     try {
         const appId = req.params.appointmentId;
@@ -649,7 +661,7 @@ async function getAppointmentQR(req, res) {
     }
 }
 
-// ── Request Skip Permission ────────────────────────────────────────────────
+
 async function requestSkipPermission(req, res) {
     try {
         const { appointmentId, staffApproved } = req.body;
@@ -696,7 +708,7 @@ async function requestSkipPermission(req, res) {
         await appointment.save();
         await queue.save();
 
-        // Send Skipped Email
+        
         const patient = await Patient.findById(appointment.patientId);
         if (patient && patient.email) {
             const doctor = await Doctor.findById(queue.doctorId);

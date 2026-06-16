@@ -211,7 +211,7 @@ ${appointment.qrCode ? `<div class="qr"><img src="${appointment.qrCode}" /></div
                                         </div>
                                     )}
 
-                                    {/* ── Prescription Card (visible for completed appointments) ── */}
+                                    {}
                                     {appointment.status === 'COMPLETED' && (appointment.prescriptionText || appointment.prescriptionUrl) && (
                                         <div style={{
                                             marginTop: '14px', padding: '16px', borderRadius: '10px',

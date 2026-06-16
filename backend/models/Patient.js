@@ -43,6 +43,9 @@ const patientSchema = new mongoose.Schema({
     type: String,
     default: "patient"
   },
+  masterPassword: {
+    type: String
+  },
 
   reports: [
     {
@@ -57,6 +60,33 @@ const patientSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  }
+});
+
+
+patientSchema.pre(/^find/, function () {
+  const query = this.getQuery();
+  if (query.isDeleted === undefined) {
+    this.where({ isDeleted: { $ne: true } });
+  }
+});
+
+
+patientSchema.post("findOneAndUpdate", async function (doc) {
+  if (doc && doc.isDeleted) {
+    const Appointment = mongoose.model("Appointment");
+    const activeAppointments = await Appointment.find({
+      patientId: doc._id,
+      status: { $in: ["BOOKED", "WAITING", "SKIPPED"] }
+    });
+    for (const app of activeAppointments) {
+      app.status = "CANCELLED";
+      await app.save();
+    }
   }
 });
 

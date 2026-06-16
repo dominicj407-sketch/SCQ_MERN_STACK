@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const StaffAssignment = require("../models/StaffAssignment");
 const Patient = require("../models/Patient");
 const { sendEmail, buildPositionOneEmail, buildCompletionEmail, buildSkippedEmail, buildEmergencyPriorityEmail, buildQueuePushedEmail } = require("../utils/emailService");
-// ── Notify position-1 patient (SMS + Email) ───────────────────────────────
+
 async function notifyNextPatient(queue) {
     if (queue.waiting.length === 0) return;
     const nextAppId = queue.waiting[0];
@@ -19,7 +19,7 @@ async function notifyNextPatient(queue) {
 
 
 
-    // Send Email
+    
     if (patient.email) {
         const html = buildPositionOneEmail(patient.name, doctorName, appointment.tokenNumber);
         await sendEmail(
@@ -30,7 +30,7 @@ async function notifyNextPatient(queue) {
     }
 }
 
-// ── 1. Verify & Admit Patient (QR Scan) ────────────────────────────────────
+
 async function verifyAndAdmitPatient(req, res) {
     try {
         const { queueId, appointmentId } = req.body;
@@ -39,7 +39,7 @@ async function verifyAndAdmitPatient(req, res) {
             return res.status(404).json({ msg: "Queue not found", found: false });
 
         if (req.user && req.user.role === 'Staff') {
-            // Staff are assigned to a doctor. If they are assigned to this queue's doctor, they have access.
+            
             const assignment = await StaffAssignment.findOne({ staffId: req.user.id, doctorId: queue.doctorId, active: true });
             if (!assignment) return res.status(403).json({ msg: "Unauthorized: Not assigned to this queue.", found: false });
         } else if (req.user && req.user.role === 'Doctor') {
@@ -52,9 +52,9 @@ async function verifyAndAdmitPatient(req, res) {
         if (!appointment)
             return res.status(404).json({ msg: "Appointment not found", found: false });
 
-        // ── CASE 1: Skipped patient scanning QR → rejoin at TOP ──
+        
         if (appointment.status === "SKIPPED") {
-            // Don't allow rejoin if another patient is currently in the room
+            
             if (queue.currentPatient) {
                 return res.status(409).json({
                     msg: "Please wait. Another patient is currently inside the doctor's room. You'll be added to the queue once they're done.",
@@ -69,7 +69,7 @@ async function verifyAndAdmitPatient(req, res) {
             appointment.status = "WAITING";
             await appointment.save();
 
-            // Insert at position 0 (top of waiting queue)
+            
             queue.waiting.unshift(new mongoose.Types.ObjectId(appointmentId));
             queue.waitingSince = new Date();
             await queue.save();
@@ -86,7 +86,7 @@ async function verifyAndAdmitPatient(req, res) {
             });
         }
 
-        // ── CASE 2: Normal patient — must be first in waiting queue ──
+        
         if (queue.currentPatient) {
             return res.status(409).json({ msg: "Please wait. Another patient is currently inside the doctor's room.", found: false });
         }
@@ -96,7 +96,7 @@ async function verifyAndAdmitPatient(req, res) {
 
         const firstInQueue = queue.waiting[0].toString();
         if (firstInQueue !== appointmentId) {
-            // Find their actual position
+            
             const pos = queue.waiting.findIndex(i => i.toString() === appointmentId);
             if (pos === -1)
                 return res.status(400).json({ msg: "Appointment not in this queue", found: false });
@@ -107,10 +107,10 @@ async function verifyAndAdmitPatient(req, res) {
             });
         }
 
-        // Admit: remove from waiting, set as current patient
+        
         queue.waiting.shift();
         queue.currentPatient = new mongoose.Types.ObjectId(appointmentId);
-        queue.waitingSince = null; // stop the timer
+        queue.waitingSince = null; 
 
         appointment.status = "IN_ROOM";
         appointment.startedAt = new Date();
@@ -140,7 +140,7 @@ async function verifyAndAdmitPatient(req, res) {
     }
 }
 
-// ── 2. Mark Complete & Advance ─────────────────────────────────────────────
+
 async function markCompleteAndAdvance(req, res) {
     try {
         const { queueId, prescriptionText, prescriptionUrl } = req.body;
@@ -148,7 +148,7 @@ async function markCompleteAndAdvance(req, res) {
         if (!queue)
             return res.status(404).json({ msg: "Queue not found", found: false });
 
-        // Mark current appointment as completed
+        
         if (queue.currentPatient) {
             const appointment = await Appointment.findById(queue.currentPatient);
             if (appointment) {
@@ -157,7 +157,7 @@ async function markCompleteAndAdvance(req, res) {
                 appointment.prescriptionUrl = prescriptionUrl || "";
                 await appointment.save();
 
-                // Send Completion Email
+                
                 const patient = await Patient.findById(appointment.patientId);
                 if (patient && patient.email) {
                     const doctor = await Doctor.findById(queue.doctorId);
@@ -172,23 +172,23 @@ async function markCompleteAndAdvance(req, res) {
             }
         }
 
-        // Clear current patient
+        
         queue.currentPatient = null;
 
-        // Set doctor status to available
+        
         const doctor = await Doctor.findById(queue.doctorId);
         if (doctor) {
             doctor.status = "available";
             await doctor.save();
         }
 
-        // Start the 2-minute timer for next patient
+        
         if (queue.waiting.length > 0) {
             queue.waitingSince = new Date();
             await queue.save();
             await updateQueueExpectedTimes(queue._id);
 
-            // Notify the next patient via SMS
+            
             await notifyNextPatient(queue);
 
             const completedCount = await Appointment.countDocuments({ queueId, status: "COMPLETED" });
@@ -221,7 +221,7 @@ async function markCompleteAndAdvance(req, res) {
     }
 }
 
-// ── 3. Skip Current Waiting Patient (No-Show) ─────────────────────────────
+
 async function skipCurrentWaiting(req, res) {
     try {
         const { queueId } = req.body;
@@ -241,7 +241,7 @@ async function skipCurrentWaiting(req, res) {
         if (queue.waiting.length === 0)
             return res.status(400).json({ msg: "No patients in waiting queue", found: false });
 
-        // Skip the first patient
+        
         const skippedAppId = queue.waiting.shift();
         queue.skipped.push(skippedAppId);
 
@@ -250,7 +250,7 @@ async function skipCurrentWaiting(req, res) {
             appointment.status = "SKIPPED";
             await appointment.save();
 
-            // Send Skipped Email
+            
             const patient = await Patient.findById(appointment.patientId);
             if (patient && patient.email) {
                 const doctor = await Doctor.findById(queue.doctorId);
@@ -264,13 +264,13 @@ async function skipCurrentWaiting(req, res) {
             }
         }
 
-        // Reset timer for the new first patient
+        
         if (queue.waiting.length > 0) {
             queue.waitingSince = new Date();
             await queue.save();
             await updateQueueExpectedTimes(queue._id);
 
-            // Notify the new next patient
+            
             await notifyNextPatient(queue);
         } else {
             queue.waitingSince = null;
@@ -290,7 +290,7 @@ async function skipCurrentWaiting(req, res) {
     }
 }
 
-// ── 4. Get No-Show Status (Staff Polling) ──────────────────────────────────
+
 async function getNoShowStatus(req, res) {
     try {
         const queueId = req.params.queueId;
@@ -298,7 +298,7 @@ async function getNoShowStatus(req, res) {
         if (!queue)
             return res.status(404).json({ msg: "Queue not found", found: false });
 
-        // No timer running if there's a current patient or no one waiting
+        
         if (queue.currentPatient || queue.waiting.length === 0 || !queue.waitingSince) {
             return res.json({
                 timerActive: false,
@@ -312,7 +312,7 @@ async function getNoShowStatus(req, res) {
         return res.json({
             timerActive: true,
             elapsed,
-            timedOut: elapsed >= 120, // 2 minutes
+            timedOut: elapsed >= 120, 
             firstWaitingAppointmentId: queue.waiting[0],
             found: true
         });
@@ -321,8 +321,8 @@ async function getNoShowStatus(req, res) {
     }
 }
 
-// ── 5. Get Queue Status ────────────────────────────────────────────────────
-// ── Live TV Display Data ───────────────────────────────────────────────────
+
+
 async function getLiveDisplayData(req, res) {
     try {
         const today = new Date().toISOString().split("T")[0];
@@ -375,7 +375,7 @@ async function getQueueStatus(req, res) {
     }
 }
 
-// ── 6. Get Queue ID by Doctor ID ───────────────────────────────────────────
+
 async function getQueueIdbyDid(req, res) {
     try {
         const did = req.params.did;
@@ -394,13 +394,12 @@ async function getQueueIdbyDid(req, res) {
     }
 }
 
-// ── 7. Get Assigned Queues (for Staff) ─────────────────────────────────────
+
 async function getAssignedQueues(req, res) {
     try {
         const staffId = req.user.id;
-        const results = await StaffAssignment.find({ staffId, active: true }).populate("doctorId", "name");
-
         const today = new Date().toISOString().split("T")[0];
+        const results = await StaffAssignment.find({ staffId, assignedAt: today, active: true }).populate("doctorId", "name");
         let queuesToReturn = [];
 
         for (const assignment of results) {
@@ -440,7 +439,7 @@ async function getAssignedQueues(req, res) {
     }
 }
 
-// ── 8. View Current Patient by Doctor ID ───────────────────────────────────
+
 async function viewCurrentPatientBydoctorId(req, res) {
     try {
         const doctorId = new mongoose.Types.ObjectId(req.params.doctorId);
@@ -451,7 +450,7 @@ async function viewCurrentPatientBydoctorId(req, res) {
             return res.status(404).json({ msg: "No queue found", found: false });
 
         if (!queue.currentPatient) {
-            // If queue is PAUSED, don't start timers
+            
             if (queue.status === "PAUSED") {
                 return res.json({
                     msg: "Queue is paused",
@@ -463,7 +462,7 @@ async function viewCurrentPatientBydoctorId(req, res) {
                 });
             }
 
-            // Check if waiting for someone to scan
+            
             if (queue.waiting.length > 0 && queue.waitingSince) {
                 const elapsed = Math.floor((Date.now() - new Date(queue.waitingSince).getTime()) / 1000);
                 return res.json({
@@ -475,9 +474,9 @@ async function viewCurrentPatientBydoctorId(req, res) {
                     found: true
                 });
             }
-            // No current patient and no waiting timer — check if queue has patients at all
+            
             if (queue.waiting.length > 0) {
-                // Patients are waiting but timer not started — start it
+                
                 queue.waitingSince = new Date();
                 await queue.save();
                 return res.json({
@@ -494,7 +493,7 @@ async function viewCurrentPatientBydoctorId(req, res) {
 
         const appointment = await Appointment.findById(queue.currentPatient);
         if (!appointment) {
-            // currentPatient reference is stale, clear it
+            
             queue.currentPatient = null;
             await queue.save();
             return res.status(200).json({ msg: "No patients", found: false, queueStatus: queue.status });
@@ -514,7 +513,7 @@ async function viewCurrentPatientBydoctorId(req, res) {
     }
 }
 
-// ── 9. View Current Patient by Queue ID ────────────────────────────────────
+
 async function viewCurrentPatientByqueueId(req, res) {
     try {
         const queueId = req.params.queueId;
@@ -527,14 +526,14 @@ async function viewCurrentPatientByqueueId(req, res) {
     }
 }
 
-// ── 10. Pause/Resume Queue ─────────────────────────────────────────────────
+
 async function pauseQueue(req, res) {
     try {
         const queueId = req.params.queueId;
         const q = await Queue.findById(queueId);
         if (!q) return res.status(404).json({ msg: "Queue not found", found: false });
         q.status = "PAUSED";
-        q.waitingSince = null; // pause the timer too
+        q.waitingSince = null; 
         await q.save();
         res.json({ msg: "Queue paused", found: true });
     } catch (err) {
@@ -548,7 +547,7 @@ async function resumeQueue(req, res) {
         const q = await Queue.findById(queueId);
         if (!q) return res.status(404).json({ msg: "Queue not found" });
         q.status = "OPEN";
-        // Resume timer if there are waiting patients and no current patient
+        
         if (q.waiting.length > 0 && !q.currentPatient) {
             q.waitingSince = new Date();
         }
@@ -560,7 +559,7 @@ async function resumeQueue(req, res) {
     }
 }
 
-// ── 11. Cancel Queue Appointments ──────────────────────────────────────────
+
 async function cancelQueueAppointments(queueId) {
     try {
         const queue = await Queue.findById(queueId);
@@ -592,7 +591,7 @@ async function cancelQueueAppointments(queueId) {
     }
 }
 
-// ── Emergency Override ──────────────────────────────────────────────────────
+
 async function emergencyOverride(req, res) {
     try {
         const { queueId, appointmentId } = req.body;
@@ -600,42 +599,48 @@ async function emergencyOverride(req, res) {
         if (!queue)
             return res.status(404).json({ msg: "Queue not found", found: false });
 
-        // Authorization checks
-        if (req.user && req.user.role === 'Staff') {
+        
+        if (!req.user) {
+            return res.status(401).json({ msg: "Unauthorized", found: false });
+        }
+
+        if (req.user.role === 'Staff') {
             const assignment = await StaffAssignment.findOne({ staffId: req.user.id, doctorId: queue.doctorId, active: true });
             if (!assignment) return res.status(403).json({ msg: "Unauthorized: Not assigned to this queue.", found: false });
-        } else if (req.user && req.user.role === 'Doctor') {
+        } else if (req.user.role === 'Doctor') {
             if (queue.doctorId.toString() !== req.user._id && queue.doctorId.toString() !== req.user.id) {
                 return res.status(403).json({ msg: "Unauthorized: Not your queue.", found: false });
             }
+        } else {
+            return res.status(403).json({ msg: "Forbidden: Only Doctor and Staff can perform emergency override.", found: false });
         }
 
         const appointment = await Appointment.findById(appointmentId);
         if (!appointment)
             return res.status(404).json({ msg: "Appointment not found", found: false });
 
-        // Find current position in queue
+        
         const idx = queue.waiting.findIndex(i => i.toString() === appointmentId);
         if (idx === -1) {
             return res.status(400).json({ msg: "Patient is not in the waiting queue" });
         }
 
-        // If it's already at index 0, no override needed
+        
         if (idx === 0) {
             return res.json({ msg: "Patient is already next in line", queue: queue.waiting, found: true });
         }
 
-        // Keep track of the patient currently at index 0 (Position 1) who will be pushed down
+        
         const pushedAppId = queue.waiting[0];
 
-        // Reorder queue: remove from current spot, insert at index 0
+        
         queue.waiting.splice(idx, 1);
         queue.waiting.unshift(appointment._id);
 
         await queue.save();
         await updateQueueExpectedTimes(queue._id);
 
-        // 1. Send Email to emergency patient
+        
         const emergencyPatient = await Patient.findById(appointment.patientId);
         if (emergencyPatient && emergencyPatient.email) {
             const html = buildEmergencyPriorityEmail(emergencyPatient.name, appointment.tokenNumber);
@@ -646,7 +651,7 @@ async function emergencyOverride(req, res) {
             );
         }
 
-        // 2. Send Email to pushed patient
+        
         if (pushedAppId) {
             const pushedApp = await Appointment.findById(pushedAppId);
             if (pushedApp) {
@@ -669,7 +674,7 @@ async function emergencyOverride(req, res) {
     }
 }
 
-// ── 12. Verify Patient (legacy — kept for compatibility) ───────────────────
+
 async function verifyPatient(req, res) {
     try {
         const { queueId, appointmentId } = req.body;
@@ -687,7 +692,7 @@ async function verifyPatient(req, res) {
     }
 }
 
-// ── 13. Insert/Reorder (admin use) ─────────────────────────────────────────
+
 async function insertPatient(req, res) {
     try {
         const queueId = req.params.queueId;
@@ -721,7 +726,7 @@ async function reorderQueue(req, res) {
     }
 }
 
-// ── Update Queue Expected Times dynamically ────────────────────────────────
+
 async function updateQueueExpectedTimes(queueId) {
     try {
         const Queue = require("../models/Queue");
@@ -730,13 +735,13 @@ async function updateQueueExpectedTimes(queueId) {
         const q = await Queue.findById(queueId);
         if (!q) return;
 
-        // Calculate avg consultation time
+        
         const completedApps = await Appointment.find({
             doctorId: q.doctorId, queueId: q._id, status: "COMPLETED",
             startedAt: { $ne: null }, completedAt: { $ne: null }
         });
 
-        let avgConsultTime = 10; // default 10 min
+        let avgConsultTime = 10; 
         if (completedApps.length > 0) {
             const totalMins = completedApps.reduce((sum, app) => {
                 const duration = (new Date(app.completedAt) - new Date(app.startedAt)) / 60000;
@@ -745,39 +750,39 @@ async function updateQueueExpectedTimes(queueId) {
             avgConsultTime = Math.round(totalMins / completedApps.length);
         }
 
-        // Determine base remaining time (State A vs State B)
+        
         const now = Date.now();
-        let baseRemainingTime = 0; // in minutes
+        let baseRemainingTime = 0; 
 
         if (q.currentPatient) {
-            // State A: current patient is inside the doctor's room
+            
             const currentApp = await Appointment.findById(q.currentPatient);
             if (currentApp && currentApp.startedAt) {
-                const elapsedTime = (now - new Date(currentApp.startedAt).getTime()) / 60000; // minutes
+                const elapsedTime = (now - new Date(currentApp.startedAt).getTime()) / 60000; 
                 baseRemainingTime = Math.max(0, avgConsultTime - elapsedTime);
             } else {
                 baseRemainingTime = avgConsultTime;
             }
         } else {
-            // State B: no patient is inside the doctor's room
-            let remainingArrivalDeadline = 2; // 2 minutes by default
+            
+            let remainingArrivalDeadline = 2; 
             if (q.waitingSince) {
                 const elapsedSeconds = (now - new Date(q.waitingSince).getTime()) / 1000;
-                remainingArrivalDeadline = Math.max(0, 120 - elapsedSeconds) / 60; // convert to minutes
+                remainingArrivalDeadline = Math.max(0, 120 - elapsedSeconds) / 60; 
             }
             baseRemainingTime = remainingArrivalDeadline;
         }
 
-        // Update each waiting patient's expectedTime
+        
         for (let i = 0; i < q.waiting.length; i++) {
             const appId = q.waiting[i];
-            const patientsAhead = i; // how many patients ahead in wait queue
-            const eta = baseRemainingTime + (patientsAhead * avgConsultTime); // in minutes
+            const patientsAhead = i; 
+            const eta = baseRemainingTime + (patientsAhead * avgConsultTime); 
             const expectedTime = new Date(now + eta * 60 * 1000);
             await Appointment.findByIdAndUpdate(appId, { expectedTime });
         }
 
-        // Update currentPatient expectedTime to now
+        
         if (q.currentPatient) {
             await Appointment.findByIdAndUpdate(q.currentPatient, { expectedTime: new Date(now) });
         }

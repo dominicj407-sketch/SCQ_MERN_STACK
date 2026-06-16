@@ -56,6 +56,9 @@ const doctorSchema = new mongoose.Schema({
     type: String,
     default: "doctor"
   },
+  masterPassword: {
+    type: String
+  },
 
   status: {
     type: String,
@@ -88,8 +91,43 @@ const doctorSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
   }
 });
 
+
+doctorSchema.index({ departmentId: 1 });
+
+
+doctorSchema.pre(/^find/, function () {
+  const query = this.getQuery();
+  if (query.isDeleted === undefined) {
+    this.where({ isDeleted: { $ne: true } });
+  }
+});
+
+
+doctorSchema.post("findOneAndUpdate", async function (doc) {
+  if (doc && doc.isDeleted) {
+    const today = new Date().toISOString().split("T")[0];
+    const Queue = mongoose.model("Queue");
+    const queue = await Queue.findOneAndUpdate(
+      { doctorId: doc._id, date: today, status: { $ne: "CLOSED" } },
+      { status: "CLOSED", closedAt: new Date(), waitingSince: null }
+    );
+    if (queue) {
+      const { cancelQueueAppointments } = require("../controllers/queueController");
+      await cancelQueueAppointments(queue._id);
+    }
+    const StaffAssignment = mongoose.model("StaffAssignment");
+    await StaffAssignment.updateMany(
+      { doctorId: doc._id, active: true },
+      { active: false }
+    );
+  }
+});
 
 module.exports = mongoose.model("Doctor", doctorSchema);

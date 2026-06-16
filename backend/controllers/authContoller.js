@@ -105,7 +105,7 @@ function callback(req, res) {
     const at = createAToken(payload);
     const rt = createRToken(payload);
     res.cookie("refreshToken", rt, { httpOnly: true, sameSite: "lax", secure: false });
-    // Redirect to frontend with token
+    
     res.redirect(`http://localhost:5173/patient/dash?token=${at}`);
 }
 
@@ -153,9 +153,66 @@ function refreshA(req, res) {
     });
 }
 
+async function forgotPassword(req, res) {
+    try {
+        const { role, email, identifier, masterPassword, newPassword } = req.body;
+        if (!role || !masterPassword || !newPassword) {
+            return res.status(400).json({ msg: "Missing required fields" });
+        }
+
+        let user;
+        const normalizedRole = role.toLowerCase();
+
+        if (normalizedRole === 'patient') {
+            user = await Patient.findOne({ email: email ? email.toLowerCase() : "" });
+        } else if (normalizedRole === 'doctor') {
+            const query = {};
+            if (email) query.email = email.toLowerCase();
+            else if (identifier) query.id = identifier;
+            else return res.status(400).json({ msg: "Email or Doctor ID is required" });
+            user = await Doctor.findOne(query);
+        } else if (normalizedRole === 'staff') {
+            const query = {};
+            if (email) query.email = email.toLowerCase();
+            else if (identifier) query.staffId = identifier;
+            else return res.status(400).json({ msg: "Email or Staff ID is required" });
+            user = await Staff.findOne(query);
+        } else {
+            return res.status(400).json({ msg: "Invalid role" });
+        }
+
+        if (!user) {
+            return res.status(404).json({ msg: "User not found" });
+        }
+
+        if (!user.masterPassword) {
+            return res.status(400).json({ msg: "Master password recovery is not set up for this user" });
+        }
+
+        
+        const isMatch = await bcrypt.compare(masterPassword, user.masterPassword);
+        if (!isMatch) {
+            
+            if (user.masterPassword !== masterPassword) {
+                return res.status(401).json({ msg: "Incorrect master password" });
+            }
+        }
+
+        
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedNewPassword;
+        await user.save();
+
+        return res.json({ msg: "Password updated successfully" });
+    } catch (err) {
+        console.error("forgotPassword error:", err);
+        return res.status(500).json({ error: err.message });
+    }
+}
+
 function logout(req, res) {
     res.clearCookie("refreshToken", { httpOnly: true, secure: false, sameSite: "strict" });
     res.json({ msg: "logged out" });
 }
 
-module.exports = { refreshP, google, callback, logout, loginP, loginS, loginD, loginA, refreshD, refreshS, refreshA };
+module.exports = { refreshP, google, callback, logout, loginP, loginS, loginD, loginA, refreshD, refreshS, refreshA, forgotPassword };

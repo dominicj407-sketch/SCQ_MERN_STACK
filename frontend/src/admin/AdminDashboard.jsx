@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import API from "../api.js";
 import styles from "./admin.module.css";
 
-// ── SVG Mini-Chart Components ──────────────────────────────────────────────
+
 
 function MiniLineChart({ data, width = 500, height = 200, color = "#a78bfa" }) {
     if (!data || data.length === 0) return null;
@@ -22,7 +22,7 @@ function MiniLineChart({ data, width = 500, height = 200, color = "#a78bfa" }) {
     const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
     const areaPath = linePath + ` L ${points[points.length - 1].x} ${padding.top + chartH} L ${points[0].x} ${padding.top + chartH} Z`;
 
-    // Y-axis grid lines
+    
     const gridLines = [0, 0.25, 0.5, 0.75, 1].map(frac => ({
         y: padding.top + chartH - frac * chartH,
         label: Math.round(frac * max)
@@ -30,7 +30,7 @@ function MiniLineChart({ data, width = 500, height = 200, color = "#a78bfa" }) {
 
     return (
         <svg width={width} height={height} style={{ overflow: 'visible' }}>
-            {/* Grid lines */}
+            {}
             {gridLines.map((g, i) => (
                 <g key={i}>
                     <line x1={padding.left} y1={g.y} x2={width - padding.right} y2={g.y}
@@ -39,11 +39,11 @@ function MiniLineChart({ data, width = 500, height = 200, color = "#a78bfa" }) {
                         fill="#94a3b8" fontSize="11">{g.label}</text>
                 </g>
             ))}
-            {/* Area fill */}
+            {}
             <path d={areaPath} fill={`${color}15`} />
             {/* Line */}
             <path d={linePath} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            {/* Dots and labels */}
+            {}
             {points.map((p, i) => (
                 <g key={i}>
                     <circle cx={p.x} cy={p.y} r="4" fill={color} stroke="#0f172a" strokeWidth="2" />
@@ -70,7 +70,7 @@ function MiniBarChart({ data, width = 500, height = 200, color = "#34d399" }) {
 
     return (
         <svg width={width} height={height}>
-            {/* Base line */}
+            {}
             <line x1={padding.left} y1={padding.top + chartH} x2={width - padding.right} y2={padding.top + chartH}
                 stroke="rgba(255, 255, 255, 0.1)" strokeWidth="1" />
             {data.map((d, i) => {
@@ -95,7 +95,7 @@ function MiniBarChart({ data, width = 500, height = 200, color = "#34d399" }) {
     );
 }
 
-// ── Main AdminDashboard ────────────────────────────────────────────────────
+
 
 function AdminDashboard() {
     const [activeTab, setActiveTab] = useState("departments");
@@ -217,7 +217,9 @@ function AdminDashboard() {
             alert("Staff assigned");
             setAssignForm({ staffId: "", doctorId: "" });
             fetchAssignments();
-        } catch (err) { alert("Error assigning staff"); }
+        } catch (err) { 
+            alert(err.response?.data?.msg || err.response?.data?.message || "Error assigning staff"); 
+        }
     };
 
     const handleLogout = () => {
@@ -225,7 +227,7 @@ function AdminDashboard() {
         navigate("/");
     };
 
-    // ── Stat Card ──────────────────────────────────────────────────────
+    
     const StatCard = ({ icon, label, value, color, sub }) => (
         <div style={{
             background: 'rgba(17, 24, 39, 0.6)',
@@ -380,7 +382,7 @@ function AdminDashboard() {
                 </div>
             )}
 
-            {/* ═══════════════ ANALYTICS TAB ═══════════════ */}
+            {}
             {activeTab === "analytics" && (
                 <div className={styles.tabContent} style={{ maxWidth: '900px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -407,7 +409,7 @@ function AdminDashboard() {
 
                     {analytics && (
                         <>
-                            {/* ── KPI Cards ─────────────────────────────── */}
+                            {}
                             <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '28px' }}>
                                 <StatCard icon="👥" label="Today's Patients" value={analytics.today.total} color="#3b82f6" />
                                 <StatCard icon="✅" label="Completed" value={analytics.today.completed} color="#10b981" />
@@ -416,7 +418,7 @@ function AdminDashboard() {
                                 <StatCard icon="💰" label="Today's Revenue" value={`₹${analytics.today.revenue}`} color="#a78bfa" />
                             </div>
 
-                            {/* ── Time Stats ────────────────────────────── */}
+                            {}
                             <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '28px' }}>
                                 <StatCard icon="⏱️" label="Avg Wait Time" value={`${analytics.today.avgWaitMinutes}m`} color="#06b6d4"
                                     sub="booked → consultation" />
@@ -426,7 +428,7 @@ function AdminDashboard() {
                                 <StatCard icon="📋" label="All-Time Total" value={analytics.allTime.totalAppointments} color="#94a3b8" />
                             </div>
 
-                            {/* ── 7-Day Revenue Chart ────────────────────── */}
+                            {}
                             <div style={{
                                 background: 'rgba(17, 24, 39, 0.75)', borderRadius: '14px', padding: '24px',
                                 border: '1px solid rgba(255, 255, 255, 0.08)', marginBottom: '20px',
@@ -443,9 +445,9 @@ function AdminDashboard() {
                                 </div>
                             </div>
 
-                            {/* ── Department Traffic + Doctor Performance ── */}
+                            {}
                             <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                                {/* Department Traffic */}
+                                {}
                                 <div style={{
                                     flex: '1 1 300px', background: 'rgba(17, 24, 39, 0.75)', borderRadius: '14px',
                                     padding: '24px', border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -464,7 +466,7 @@ function AdminDashboard() {
                                     )}
                                 </div>
 
-                                {/* 7-Day Patient Traffic */}
+                                {}
                                 <div style={{
                                     flex: '1 1 300px', background: 'rgba(17, 24, 39, 0.75)', borderRadius: '14px',
                                     padding: '24px', border: '1px solid rgba(255, 255, 255, 0.08)',
@@ -480,7 +482,7 @@ function AdminDashboard() {
                                 </div>
                             </div>
 
-                            {/* ── Doctor Performance Table ────────────────── */}
+                            {}
                             {analytics.doctorPerformance.length > 0 && (
                                 <div style={{
                                     background: 'rgba(17, 24, 39, 0.75)', borderRadius: '14px', padding: '24px',

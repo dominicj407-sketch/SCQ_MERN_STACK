@@ -37,4 +37,7 @@ const staffAssignmentSchema = new mongoose.Schema({
   }
 });
 
+
+staffAssignmentSchema.index({ staffId: 1, active: 1 });
+
 module.exports = mongoose.model("StaffAssignment", staffAssignmentSchema);
