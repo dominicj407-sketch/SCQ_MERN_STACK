@@ -97,6 +97,10 @@ async function loginA(req, res) {
 }
 
 function google(req, res, next) {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+        return res.status(503).json({ msg: "Google OAuth is not configured" });
+    }
+
     passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 }
 
@@ -106,7 +110,7 @@ function callback(req, res) {
     const rt = createRToken(payload);
     res.cookie("refreshToken", rt, { httpOnly: true, sameSite: "lax", secure: false });
     
-    res.redirect(`http://localhost:5173/patient/dash?token=${at}`);
+    res.redirect(`/patient/dash?token=${at}`);
 }
 
 function refreshP(req, res) {

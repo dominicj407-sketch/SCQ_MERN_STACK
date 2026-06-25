@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import API from '../api';
+import axios from 'axios';
+import { authUrl } from '../api';
 import Styles from './util.module.css';
 
 function Menubar({ menus, color }) {
@@ -8,7 +9,7 @@ function Menubar({ menus, color }) {
 
   const handleLogout = async () => {
     try {
-      await API.get('/auth/logout');
+      await axios.get(authUrl('/logout'), { withCredentials: true });
     } catch (err) {
       console.error("Logout failed", err);
     } finally {

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import axios from 'axios'
 import services from "../authservices/login";
 import styles from "./login.module.css";
-import API from "../api";
+import { authUrl } from "../api";
 function DoctorLogin(){
      let [doctorId,setdoctorId]=useState("");
     let [password,setpassword]=useState("");
@@ -11,7 +11,7 @@ function DoctorLogin(){
         try{
             console.log("🩺 Doctor Login - Sending credentials for doctorId:", doctorId);
             let data={doctorId,password,url:"/login/Doctor"};
-            let res=await axios.post("http://localhost:3000/auth/login/Doctor",data,{
+            let res=await axios.post(authUrl("/login/Doctor"),data,{
                 withCredentials:true
             });
             console.log("🩺 Doctor Login Response:", res.data);

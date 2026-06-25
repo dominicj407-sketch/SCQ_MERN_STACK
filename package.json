@@ -1,0 +1,11 @@
+{
+  "name": "smartcarequeue-deploy",
+  "private": true,
+  "scripts": {
+    "render-build": "npm ci --prefix backend && npm ci --prefix frontend && npm run build --prefix frontend",
+    "start": "npm start --prefix backend"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import API, { authUrl } from "../api";
 import Menubar from "../utils.jsx/menubar.jsx";
 import styles from "./patients.module.css";
 
@@ -21,7 +22,7 @@ function PatientProfile() {
         let isMounted = true;
         const fetchPatient = async () => {
             try {
-                let res = await axios.get("http://localhost:3000/api/patients/getPatientById/dummy", {
+                let res = await API.get("/patients/getPatientById/dummy", {
                     withCredentials: true,
                     headers: { Authorization: `bearer ${localStorage.getItem('accessToken')}` }
                 });
@@ -33,9 +34,9 @@ function PatientProfile() {
                 console.error("Error loading patient profile:", err);
                 if (err.response?.status === 401) {
                     try {
-                        let res = await axios.post("http://localhost:3000/auth/refresh/Patient", {}, { withCredentials: true });
+                        let res = await axios.post(authUrl("/refresh/Patient"), {}, { withCredentials: true });
                         localStorage.setItem('accessToken', res.data.accessToken);
-                        res = await axios.get("http://localhost:3000/api/patients/getPatientById/dummy", {
+                        res = await API.get("/patients/getPatientById/dummy", {
                             withCredentials: true,
                             headers: { Authorization: `bearer ${localStorage.getItem("accessToken")}` }
                         });
@@ -71,7 +72,7 @@ function PatientProfile() {
 
     const handleSave = async () => {
         try {
-            await axios.post(`http://localhost:3000/api/patients/updatePatients/${patientId}`, formData, {
+            await API.post(`/patients/updatePatients/${patientId}`, formData, {
                 withCredentials: true,
                 headers: { Authorization: `bearer ${localStorage.getItem('accessToken')}` }
             });

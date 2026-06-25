@@ -1,10 +1,22 @@
 const Payment = require("../models/Payment.js");
 const Razorpay = require("razorpay");
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpay;
+
+function getRazorpayClient() {
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+        return null;
+    }
+
+    if (!razorpay) {
+        razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET
+        });
+    }
+
+    return razorpay;
+}
 
 async function createOrder(req, res) {
     const options = {
@@ -13,7 +25,12 @@ async function createOrder(req, res) {
         receipt: "receipt_order_1"
     };
     try {
-        const order = await razorpay.orders.create(options);
+        const rzp = getRazorpayClient();
+        if (!rzp) {
+            return res.status(503).json({ error: "Razorpay is not configured" });
+        }
+
+        const order = await rzp.orders.create(options);
         res.json(order);
     } catch (err) {
         res.status(500).send(err);

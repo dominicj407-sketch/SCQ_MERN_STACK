@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios'
-import API from "../api";
+import { authUrl } from "../api";
 import styles from "./login.module.css";
 function PatientLogin(){
     
@@ -10,7 +10,7 @@ function PatientLogin(){
     async function validatedata(){
         try{
             let data={email,password};
-            let res=await axios.post("http://localhost:3000/auth/login/Patient",data,{withCredentials:true});
+            let res=await axios.post(authUrl("/login/Patient"),data,{withCredentials:true});
             alert("hello");
             localStorage.setItem("accessToken", res.data.accessToken); 
             localStorage.setItem("role",res.data.role);
@@ -63,7 +63,7 @@ function PatientLogin(){
             </div>
 
             <button
-                onClick={() => window.location.href = 'http://localhost:3000/auth/google'}
+                onClick={() => window.location.href = authUrl('/google')}
                 style={{
                     width:'100%',padding:'12px',border:'2px solid #eee',borderRadius:'8px',
                     background:'white',cursor:'pointer',fontSize:'15px',fontWeight:'600',

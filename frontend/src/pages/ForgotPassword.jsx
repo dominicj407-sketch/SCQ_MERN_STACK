@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import axios from "axios";
+import { authUrl } from "../api";
 import styles from "./login.module.css";
 
 function ForgotPassword() {
@@ -45,7 +46,7 @@ function ForgotPassword() {
                 }
             }
 
-            const res = await axios.post("http://localhost:3000/auth/forgot-password", payload);
+            const res = await axios.post(authUrl("/forgot-password"), payload, { withCredentials: true });
             setMessage("✅ " + res.data.msg);
             setTimeout(() => {
                 window.location.href = `/${role.toLowerCase()}/login`;

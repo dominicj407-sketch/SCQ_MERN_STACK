@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios'
+import { apiUrl } from "../api";
 import styles from "./login.module.css";
 
 function PatientSignup(){
@@ -17,7 +18,7 @@ function PatientSignup(){
         try{ 
             setLoading(true);
             let data={email,password,phone,name,gender,age: Number(age)};
-            let res=await axios.post("http://localhost:3000/api/patients/registerPatient",data,{withCredentials:true});
+            let res=await axios.post(apiUrl("/patients/registerPatient"),data,{withCredentials:true});
             alert(res.data.msg || "Registration successful!");
             window.location.href="/patient/login";
         }
