@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../api.js";
+import { authUrl } from "../api.js";
 import axios from "axios";
 import styles from "./admin.module.css";
 
@@ -10,7 +10,7 @@ function AdminLogin() {
 
     const handleSubmit = async (e) => {
         try {
-            const res = await axios.post("http://localhost:3000/auth/login/Admin", form);
+            const res = await axios.post(authUrl("/login/Admin"), form, { withCredentials: true });
             localStorage.setItem("accessToken", res.data.accessToken);
             navigate("/admin/dash");
         } catch (err) {

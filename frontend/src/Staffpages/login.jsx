@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios'
-import API from "../api";
+import { authUrl } from "../api";
 import styles from "./login.module.css";
 function Stafflogin(){
     let [staffId,setId]=useState("");
@@ -10,7 +10,7 @@ function Stafflogin(){
         try{
             let data={staffId,password};
             console.log("data",data);
-            let res=await axios.post("http://localhost:3000/auth/login/Staff",data,{withCredentials:true});
+            let res=await axios.post(authUrl("/login/Staff"),data,{withCredentials:true});
             alert("hello");
             localStorage.setItem("accessToken", res.data.accessToken); 
             localStorage.setItem("role",res.data.role)

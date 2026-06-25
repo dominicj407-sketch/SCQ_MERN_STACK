@@ -1,6 +1,14 @@
 import axios from 'axios';
+
+const trimTrailingSlash = (value) => value.replace(/\/+$/, "");
+const normalizePath = (path = "") => path.startsWith("/") ? path : `/${path}`;
+const API_ORIGIN = trimTrailingSlash(import.meta.env.VITE_API_URL || "");
+
+export const apiUrl = (path = "") => `${API_ORIGIN}/api${normalizePath(path)}`;
+export const authUrl = (path = "") => `${API_ORIGIN}/auth${normalizePath(path)}`;
+
 let API=axios.create({
-    baseURL:"http://localhost:3000/api",
+    baseURL: apiUrl(),
     withCredentials:true
 })
 API.interceptors.request.use((config)=>{
@@ -30,16 +38,16 @@ API.interceptors.response.use((response)=>{
             let refreshRes;
             if(role === "Doctor"){
                 console.log("Using POST for Doctor");
-                refreshRes = await axios.post(`http://localhost:3000/auth/refresh/Doctor`, {}, { withCredentials: true });
+                refreshRes = await axios.post(authUrl("/refresh/Doctor"), {}, { withCredentials: true });
             } else if(role === "Patient"){
                 console.log("Using POST for Patient");
-                refreshRes = await axios.post(`http://localhost:3000/auth/refresh/Patient`, {}, { withCredentials: true });
+                refreshRes = await axios.post(authUrl("/refresh/Patient"), {}, { withCredentials: true });
             } else if(role === "Staff"){
                 console.log("Using POST for Staff");
-                refreshRes = await axios.post(`http://localhost:3000/auth/refresh/Staff`, {}, { withCredentials: true });
+                refreshRes = await axios.post(authUrl("/refresh/Staff"), {}, { withCredentials: true });
             } else if(role === "Admin"){
                 console.log("Using POST for Admin");
-                refreshRes = await axios.post(`http://localhost:3000/auth/refresh/Admin`, {}, { withCredentials: true });
+                refreshRes = await axios.post(authUrl("/refresh/Admin"), {}, { withCredentials: true });
             } else {
                 throw new Error("Unknown role: " + role);
             }
