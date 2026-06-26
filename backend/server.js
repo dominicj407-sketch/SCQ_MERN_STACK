@@ -14,6 +14,7 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 const frontendDistPath = path.join(__dirname, "..", "frontend", "dist");
 const localOrigins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
+const googleCallbackPath = "/auth/google/callback";
 const configuredOrigins = (process.env.CLIENT_ORIGIN || process.env.CLIENT_URL || "")
     .split(",")
     .map(origin => origin.trim())
@@ -41,12 +42,11 @@ app.use(passport.initialize());
 
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-    const serverUrl = process.env.SERVER_URL || `http://localhost:${PORT}`;
-
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: process.env.GOOGLE_CALLBACK_URL || `${serverUrl}/auth/google/callback`
+        callbackURL: googleCallbackPath,
+        proxy: true
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             const email = profile.emails?.[0]?.value;
