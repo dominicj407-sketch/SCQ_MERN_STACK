@@ -13,10 +13,13 @@ This repo is configured to deploy as one Render free web service. The Express ba
 
 ### Optional environment variables
 
-- `SERVER_URL`: deployed Render URL, required only for Google OAuth.
-- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL`: required only for Google sign-in.
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`: required only for Google sign-in.
 - `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`: required only for live Razorpay order creation.
 - `EMAIL_USER`, `EMAIL_PASS`: required only for Gmail email sending.
+
+For Google sign-in, add this Authorized redirect URI in the Google Cloud OAuth client:
+
+`https://your-render-service.onrender.com/auth/google/callback`
 
 ### Render deployment
 

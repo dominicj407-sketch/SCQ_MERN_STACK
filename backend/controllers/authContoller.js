@@ -101,6 +101,11 @@ function google(req, res, next) {
         return res.status(503).json({ msg: "Google OAuth is not configured" });
     }
 
+    const forwardedProto = req.get("x-forwarded-proto");
+    const forwardedHost = req.get("x-forwarded-host");
+    const protocol = forwardedProto ? forwardedProto.split(",")[0].trim() : req.protocol;
+    const host = forwardedHost ? forwardedHost.split(",")[0].trim() : req.get("host");
+    console.log(`Google OAuth redirect URI: ${protocol}://${host}/auth/google/callback`);
     passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
 }
 
